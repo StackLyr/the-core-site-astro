@@ -8,6 +8,43 @@ const classes = [
   { name: "Restore & Stretch", level: "Suave", text: "Movilidad consciente, liberación de tensión y estiramientos profundos para recuperar mejor." }
 ];
 
+const instagramUrl = "https://www.instagram.com/thecoresite/";
+const whatsappUrl = "https://wa.link/g1usk0";
+const reviewUrl = "https://g.page/r/CYwLzRQcMcMnECE/review";
+
+const socialPosts = [
+  {
+    label: "Técnica",
+    title: "Una buena postura cambia todo.",
+    text: "Alineación, control y atención a cada detalle para moverte con intención.",
+    image: "/instagram-posture.jpg",
+    width: 512,
+    height: 640,
+    href: "https://www.instagram.com/thecoresite/p/DdhgFvszVRt/",
+    alt: "Guía visual de postura y alineación durante un ejercicio de Pilates"
+  },
+  {
+    label: "Reto",
+    title: "Elige tu desafío.",
+    text: "Progresiones que respetan tu nivel y te invitan a descubrir de qué eres capaz.",
+    image: "/instagram-challenge.jpg",
+    width: 360,
+    height: 640,
+    href: "https://www.instagram.com/thecoresite/reel/DdDCT9mzq01/",
+    alt: "Instructora de Pilates sentada sobre una colchoneta en el estudio"
+  },
+  {
+    label: "Detalle",
+    title: "Todo está en los detalles.",
+    text: "Acompañamiento cercano para construir fuerza, confianza y una práctica que se sienta tuya.",
+    image: "/instagram-details.jpg",
+    width: 360,
+    height: 640,
+    href: "https://www.instagram.com/thecoresite/reel/DcokgTaPJe7/",
+    alt: "Mujer entrenando brazos frente al espejo de un estudio de Pilates"
+  }
+];
+
 const year = new Date().getFullYear();
 ---
 
@@ -30,18 +67,21 @@ const year = new Date().getFullYear();
             <a href="#metodo">Método</a>
             <a href="#clases">Clases</a>
             <a href="#estudio">Estudio</a>
+            <a href={instagramUrl} target="_blank" rel="noopener noreferrer">Instagram ↗</a>
           </nav>
           <a class="brand" href="#inicio" aria-label="The Core Site, inicio">
             <img class="brand-logo" src="/core-logo.png" alt="" width="720" height="304" />
           </a>
-          <a class="header-cta" href="#reserva">Clase de prueba</a>
+          <a class="header-cta" href={whatsappUrl} target="_blank" rel="noopener noreferrer">Clase de prueba</a>
           <details class="mobile-menu">
             <summary aria-label="Abrir menú"><span></span><span></span></summary>
             <nav aria-label="Navegación móvil">
               <a href="#metodo">Método</a>
               <a href="#clases">Clases</a>
+              <a href="#comunidad">Comunidad</a>
               <a href="#estudio">Estudio</a>
-              <a href="#reserva">Clase de prueba</a>
+              <a href={instagramUrl} target="_blank" rel="noopener noreferrer">Instagram ↗</a>
+              <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">Clase de prueba</a>
             </nav>
           </details>
         </header>
@@ -74,7 +114,7 @@ const year = new Date().getFullYear();
           <p>Tu primera experiencia</p>
           <h2>PRIMERA<br />CLASE</h2>
           <span>Una sesión para conocer el reformer, tu nivel y la forma de entrenar que mejor encaja contigo.</span>
-          <a href="#contacto">Reservar clase <span aria-hidden="true">↗</span></a>
+          <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">Reservar clase <span aria-hidden="true">↗</span></a>
         </div>
         <div class="trial-seal" aria-hidden="true">MUÉVETE · RESPIRA · AVANZA ·</div>
       </section>
@@ -100,6 +140,33 @@ const year = new Date().getFullYear();
         </div>
       </section>
 
+      <section class="community" id="comunidad">
+        <div class="community-heading">
+          <div class="section-label">03 — Comunidad</div>
+          <p class="community-mantra">Everything starts at the CORE.</p>
+          <h2>MUÉVETE.<br />CONECTA.<br />CRECE.</h2>
+          <a class="text-link community-profile" href={instagramUrl} target="_blank" rel="noopener noreferrer">
+            Seguir @thecoresite <span aria-hidden="true">↗</span>
+          </a>
+        </div>
+        <div class="social-grid">
+          {socialPosts.map((post, index) => (
+            <a class="social-card" href={post.href} target="_blank" rel="noopener noreferrer" aria-label={`${post.label}: ${post.title} — ver en Instagram`}>
+              <div class="social-media">
+                <img src={post.image} alt={post.alt} width={post.width} height={post.height} loading="lazy" decoding="async" />
+                <span class="social-number">0{index + 1}</span>
+              </div>
+              <div class="social-copy">
+                <span>{post.label}</span>
+                <h3>{post.title}</h3>
+                <p>{post.text}</p>
+                <strong>Ver publicación ↗</strong>
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+
       <section class="studio" id="estudio">
         <div class="studio-visual">
           <div class="studio-word" aria-hidden="true">CORE</div>
@@ -108,17 +175,17 @@ const year = new Date().getFullYear();
           </div>
         </div>
         <div class="studio-copy">
-          <div class="section-label">03 — El estudio</div>
+          <div class="section-label">04 — El estudio</div>
           <h2>ESPACIO PARA<br />MOVERTE MEJOR.</h2>
           <p>Un estudio boutique, atención cercana y grupos reducidos. Cada detalle está pensado para que entrenes con confianza, precisión y energía.</p>
-          <div class="studio-points"><span>Grupos reducidos</span><span>Guía personalizada</span><span>Equipamiento premium</span></div>
+          <div class="studio-points"><span>Grupos reducidos</span><span>Guía personalizada</span><span>Equipamiento premium</span><span>David, Chiriquí</span></div>
         </div>
       </section>
 
       <section class="closing" id="contacto">
         <p>Empieza donde estás.</p>
         <h2>TU MOVIMIENTO<br />EMPIEZA AQUÍ.</h2>
-        <a href="#reserva">Quiero probar una clase <span aria-hidden="true">↗</span></a>
+        <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">Quiero probar una clase <span aria-hidden="true">↗</span></a>
       </section>
 
       <footer class="site-footer">
@@ -129,19 +196,21 @@ const year = new Date().getFullYear();
           </a>
           <div class="footer-message">
             <p>Fuerza desde<br />el centro.</p>
-            <a href="#reserva">Reservar una clase <span aria-hidden="true">↗</span></a>
+            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">Reservar una clase <span aria-hidden="true">↗</span></a>
           </div>
           <nav class="footer-nav" aria-label="Enlaces de pie de página">
             <span>Explorar</span>
             <a href="#metodo">Método</a>
             <a href="#clases">Clases</a>
+            <a href="#comunidad">Comunidad</a>
             <a href="#estudio">Estudio</a>
-            <a href="#contacto">Contacto</a>
+            <a href={instagramUrl} target="_blank" rel="noopener noreferrer">Instagram ↗</a>
+            <a href={reviewUrl} target="_blank" rel="noopener noreferrer">Dejar una reseña ↗</a>
           </nav>
         </div>
         <div class="footer-bottom">
           <small>© {year} The Core Site</small>
-          <span>Pilates Reformer · Movimiento consciente</span>
+          <span>Pilates Reformer · David, Chiriquí</span>
           <a href="#inicio">Volver arriba ↑</a>
         </div>
       </footer>
