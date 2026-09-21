@@ -10,7 +10,10 @@ const classes = [
 
 const instagramUrl = "https://www.instagram.com/thecoresite/";
 const whatsappUrl = "https://wa.link/g1usk0";
+const whatsappPhone = "50763930891";
 const reviewUrl = "https://g.page/r/CYwLzRQcMcMnECE/review";
+const mapsUrl = "https://www.google.com/maps/search/?api=1&query=The+Core+Site%2C+C.+D+Sur+4567%2C+David%2C+Provincia+de+Chiriqu%C3%AD";
+const mapsEmbedUrl = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3700.073487454364!2d-82.43439902498812!3d8.426679291612587!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8fa59d187a562411%3A0x27c3311c14cd0b8c!2sThe%20Core%20Site!5e1!3m2!1sen!2spa!4v1790004044585!5m2!1sen!2spa";
 
 const socialPosts = [
   {
@@ -67,6 +70,7 @@ const year = new Date().getFullYear();
             <a href="#metodo">Método</a>
             <a href="#clases">Clases</a>
             <a href="#estudio">Estudio</a>
+            <a href="#contacto">Contacto</a>
           </nav>
           <a class="brand" href="#inicio" aria-label="The Core Site, inicio">
             <img class="brand-logo" src="/core-logo.png" alt="" width="720" height="304" />
@@ -79,6 +83,7 @@ const year = new Date().getFullYear();
               <a href="#clases">Clases</a>
               <a href="#comunidad">Comunidad</a>
               <a href="#estudio">Estudio</a>
+              <a href="#contacto">Contacto</a>
               <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">Clase de prueba</a>
             </nav>
           </details>
@@ -166,24 +171,66 @@ const year = new Date().getFullYear();
       </section>
 
       <section class="studio" id="estudio">
-        <div class="studio-visual">
-          <div class="studio-word" aria-hidden="true">CORE</div>
-          <div class="studio-mark">
-            <img class="brand-logo" src="/core-logo.png" alt="The Core Site" width="720" height="304" loading="lazy" />
-          </div>
+        <div class="amenities-heading">
+          <div class="section-label dark">04 — El estudio</div>
+          <h2>TODO PARA<br />TU PRÁCTICA.</h2>
+          <p>Un espacio boutique diseñado para que entrenes con atención, comodidad y una guía realmente cercana.</p>
         </div>
-        <div class="studio-copy">
-          <div class="section-label">04 — El estudio</div>
-          <h2>ESPACIO PARA<br />MOVERTE MEJOR.</h2>
-          <p>Un estudio boutique, atención cercana y grupos reducidos. Cada detalle está pensado para que entrenes con confianza, precisión y energía.</p>
-          <div class="studio-points"><span>Grupos reducidos</span><span>Guía personalizada</span><span>Equipamiento premium</span><span>David, Chiriquí</span></div>
-        </div>
+        <ul class="amenities-grid" aria-label="Comodidades y características del estudio">
+          <li><span>Pilates Reformer</span><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M7 34h34M11 34V21h26v13M16 21v-7h16v7M14 38v-4M34 38v-4" /></svg></li>
+          <li><span>Grupos reducidos</span><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="17" cy="18" r="5"/><circle cx="32" cy="17" r="4"/><path d="M8 36c1-7 4-11 9-11s9 4 10 11M27 25c6 0 10 4 11 11"/></svg></li>
+          <li><span>Guía personalizada</span><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="15" r="6"/><path d="M11 37c2-9 6-14 13-14s11 5 13 14M35 10v10M30 15h10"/></svg></li>
+          <li><span>Equipamiento premium</span><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M10 28h28M14 21v14M34 21v14M8 24v8M40 24v8M18 24v8M30 24v8"/></svg></li>
+          <li><span>Atención con reserva</span><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="9" y="12" width="30" height="28" rx="3"/><path d="M16 8v8M32 8v8M9 20h30M17 30l5 5 10-11"/></svg></li>
+          <li><span>Plaza JBC · David</span><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M37 20c0 10-13 21-13 21S11 30 11 20a13 13 0 1 1 26 0Z"/><circle cx="24" cy="20" r="4"/></svg></li>
+        </ul>
       </section>
 
-      <section class="closing" id="contacto">
-        <p>Empieza donde estás.</p>
-        <h2>TU MOVIMIENTO<br />EMPIEZA AQUÍ.</h2>
-        <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">Quiero probar una clase <span aria-hidden="true">↗</span></a>
+      <section class="contact" id="contacto">
+        <div class="contact-heading">
+          <div>
+            <div class="section-label dark">05 — Contacto</div>
+            <h2>GET IN<br />TOUCH.</h2>
+          </div>
+          <div class="contact-intro">
+            <p>¿Primera vez en Pilates o ya tienes experiencia? Cuéntanos qué estás buscando y te ayudamos a elegir tu clase.</p>
+            <div class="contact-channels">
+              <a href={instagramUrl} target="_blank" rel="noopener noreferrer">Instagram <span aria-hidden="true">↗</span></a>
+              <a class="contact-channel-primary" href={whatsappUrl} target="_blank" rel="noopener noreferrer">WhatsApp <span aria-hidden="true">↗</span></a>
+            </div>
+          </div>
+        </div>
+        <div class="contact-grid">
+          <form class="contact-form" id="contact-form" data-whatsapp-phone={whatsappPhone} action={`https://wa.me/${whatsappPhone}`} method="get" target="_blank">
+            <div class="form-field">
+              <label for="contact-name">Nombre</label>
+              <input id="contact-name" name="name" type="text" autocomplete="name" placeholder="Tu nombre" required />
+            </div>
+            <div class="form-field">
+              <label for="contact-email">Email</label>
+              <input id="contact-email" name="email" type="email" autocomplete="email" placeholder="tu@email.com" required />
+            </div>
+            <div class="form-field">
+              <label for="contact-phone">Teléfono</label>
+              <input id="contact-phone" name="phone" type="tel" autocomplete="tel" placeholder="+507" />
+            </div>
+            <div class="form-field form-field-wide">
+              <label for="contact-message">Mensaje</label>
+              <textarea id="contact-message" name="message" rows="4" placeholder="Cuéntanos cómo podemos ayudarte" required></textarea>
+            </div>
+            <button type="submit">Enviar por WhatsApp <span aria-hidden="true">↗</span></button>
+          </form>
+          <div class="location-card">
+            <iframe src={mapsEmbedUrl} title="Ubicación de The Core Site en Google Maps" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            <div class="location-details">
+              <div>
+                <span>Visítanos</span>
+                <p>Plaza JBC · C. D Sur 4567<br />David, Chiriquí, Panamá</p>
+              </div>
+              <a href={mapsUrl} target="_blank" rel="noopener noreferrer">Cómo llegar <span aria-hidden="true">↗</span></a>
+            </div>
+          </div>
+        </div>
       </section>
 
       <footer class="site-footer">
@@ -213,7 +260,7 @@ const year = new Date().getFullYear();
           </nav>
           <div class="footer-studio">
             <span>Estudio</span>
-            <p>David, Chiriquí · Panamá</p>
+            <p>Plaza JBC · David, Chiriquí</p>
             <p>Atención con reserva previa</p>
             <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">Reservar por WhatsApp</a>
             <a href={reviewUrl} target="_blank" rel="noopener noreferrer">Deja tu review <span aria-hidden="true">♥</span></a>
@@ -253,6 +300,26 @@ const year = new Date().getFullYear();
 
         document.addEventListener("visibilitychange", () => {
           root.classList.toggle("page-hidden", document.hidden);
+        });
+
+        const contactForm = document.querySelector("#contact-form");
+        contactForm?.addEventListener("submit", (event) => {
+          event.preventDefault();
+          const whatsappPhone = contactForm.dataset.whatsappPhone;
+          const data = new FormData(contactForm);
+          const name = String(data.get("name") || "").trim();
+          const email = String(data.get("email") || "").trim();
+          const phone = String(data.get("phone") || "").trim();
+          const message = String(data.get("message") || "").trim();
+          const lines = [
+            `Hola 🤎 Soy ${name}.`,
+            `Email: ${email}`,
+            phone ? `Teléfono: ${phone}` : "",
+            `Mensaje: ${message}`
+          ].filter(Boolean);
+          if (whatsappPhone) {
+            window.open(`https://wa.me/${whatsappPhone}?text=${encodeURIComponent(lines.join("\n"))}`, "_blank", "noopener,noreferrer");
+          }
         });
       })();
     </script>
