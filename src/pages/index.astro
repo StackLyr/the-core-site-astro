@@ -1,0 +1,150 @@
+---
+import "../styles/global.css";
+
+const classes = [
+  { name: "Reformer Base", level: "Todos los niveles", text: "Control, alineación y fuerza desde los fundamentos. La mejor forma de comenzar y perfeccionar tu técnica." },
+  { name: "Reformer Flow", level: "Intermedio", text: "Secuencias fluidas que conectan respiración, precisión y resistencia para entrenar el cuerpo completo." },
+  { name: "Reformer Athletic", level: "Intenso", text: "Un formato dinámico que combina potencia, estabilidad y cardio de bajo impacto sobre el reformer." },
+  { name: "Restore & Stretch", level: "Suave", text: "Movilidad consciente, liberación de tensión y estiramientos profundos para recuperar mejor." }
+];
+
+const year = new Date().getFullYear();
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="theme-color" content="#523e33" />
+    <meta name="description" content="Pilates Reformer para moverte con control, fuerza y confianza." />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>The Core Site — Pilates Reformer</title>
+  </head>
+  <body>
+    <main>
+      <section class="hero" id="inicio">
+        <header class="site-header">
+          <nav class="desktop-nav" aria-label="Navegación principal">
+            <a href="#inicio">Inicio</a>
+            <a href="#metodo">Método</a>
+            <a href="#clases">Clases</a>
+            <a href="#estudio">Estudio</a>
+          </nav>
+          <a class="brand" href="#inicio" aria-label="The Core Site, inicio">
+            <img class="brand-logo" src="/core-logo.png" alt="" width="720" height="304" />
+          </a>
+          <a class="header-cta" href="#reserva">Clase de prueba</a>
+          <details class="mobile-menu">
+            <summary aria-label="Abrir menú"><span></span><span></span></summary>
+            <nav aria-label="Navegación móvil">
+              <a href="#metodo">Método</a>
+              <a href="#clases">Clases</a>
+              <a href="#estudio">Estudio</a>
+              <a href="#reserva">Clase de prueba</a>
+            </nav>
+          </details>
+        </header>
+
+        <div class="hero-copy" aria-hidden="true">
+          <div class="hero-copy-track">
+            <div class="hero-copy-group"><span>PILATES</span><span>PILATES</span></div>
+            <div class="hero-copy-group"><span>PILATES</span><span>PILATES</span></div>
+          </div>
+        </div>
+        <img class="hero-image" src="/pilates-hero.webp" alt="Mujer practicando Pilates Reformer en un estudio contemporáneo" width="1536" height="864" fetchpriority="high" />
+        <div class="hero-kicker"><span>Movimiento consciente</span><span>Fuerza real</span></div>
+        <a class="scroll-cue" href="#metodo" aria-label="Descubrir el método">↓</a>
+      </section>
+
+      <section class="intro" id="metodo">
+        <div class="section-label">01 — El método</div>
+        <div class="intro-grid">
+          <h1>REFORMA TU CUERPO.<br />REDEFINE TUS LÍMITES.</h1>
+          <div class="intro-copy">
+            <p>Pilates Reformer transforma la forma en que te mueves. Trabajamos fuerza, movilidad y control en cada sesión para que te sientas mejor dentro y fuera del estudio.</p>
+            <a class="text-link" href="#clases">Explorar las clases <span aria-hidden="true">↗</span></a>
+          </div>
+        </div>
+      </section>
+
+      <section class="trial" id="reserva">
+        <div class="trial-number" aria-hidden="true">01</div>
+        <div class="trial-content">
+          <p>Tu primera experiencia</p>
+          <h2>PRIMERA<br />CLASE</h2>
+          <span>Una sesión para conocer el reformer, tu nivel y la forma de entrenar que mejor encaja contigo.</span>
+          <a href="#contacto">Reservar clase <span aria-hidden="true">↗</span></a>
+        </div>
+        <div class="trial-seal" aria-hidden="true">MUÉVETE · RESPIRA · AVANZA ·</div>
+      </section>
+
+      <section class="classes" id="clases">
+        <div class="section-heading">
+          <div class="section-label dark">02 — Clases</div>
+          <h2>ENCUENTRA<br />TU RITMO.</h2>
+          <p>Formatos pensados para acompañarte desde tu primera sesión hasta tus objetivos más ambiciosos.</p>
+        </div>
+        <div class="class-list">
+          {classes.map((item, index) => (
+            <details class="class-row" open={index === 0}>
+              <summary>
+                <span class="class-index">0{index + 1}</span>
+                <span class="class-name">{item.name}</span>
+                <span class="class-level">{item.level}</span>
+                <span class="class-plus" aria-hidden="true">+</span>
+              </summary>
+              <p>{item.text}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+
+      <section class="studio" id="estudio">
+        <div class="studio-visual">
+          <div class="studio-word" aria-hidden="true">CORE</div>
+          <div class="studio-mark">
+            <img class="brand-logo" src="/core-logo.png" alt="The Core Site" width="720" height="304" loading="lazy" />
+          </div>
+        </div>
+        <div class="studio-copy">
+          <div class="section-label">03 — El estudio</div>
+          <h2>ESPACIO PARA<br />MOVERTE MEJOR.</h2>
+          <p>Un estudio boutique, atención cercana y grupos reducidos. Cada detalle está pensado para que entrenes con confianza, precisión y energía.</p>
+          <div class="studio-points"><span>Grupos reducidos</span><span>Guía personalizada</span><span>Equipamiento premium</span></div>
+        </div>
+      </section>
+
+      <section class="closing" id="contacto">
+        <p>Empieza donde estás.</p>
+        <h2>TU MOVIMIENTO<br />EMPIEZA AQUÍ.</h2>
+        <a href="#reserva">Quiero probar una clase <span aria-hidden="true">↗</span></a>
+      </section>
+
+      <footer class="site-footer">
+        <div class="footer-main">
+          <a class="footer-brand" href="#inicio">
+            <img class="brand-logo" src="/core-logo.png" alt="" width="720" height="304" loading="lazy" />
+            <span class="sr-only">The Core Site</span>
+          </a>
+          <div class="footer-message">
+            <p>Fuerza desde<br />el centro.</p>
+            <a href="#reserva">Reservar una clase <span aria-hidden="true">↗</span></a>
+          </div>
+          <nav class="footer-nav" aria-label="Enlaces de pie de página">
+            <span>Explorar</span>
+            <a href="#metodo">Método</a>
+            <a href="#clases">Clases</a>
+            <a href="#estudio">Estudio</a>
+            <a href="#contacto">Contacto</a>
+          </nav>
+        </div>
+        <div class="footer-bottom">
+          <small>© {year} The Core Site</small>
+          <span>Pilates Reformer · Movimiento consciente</span>
+          <a href="#inicio">Volver arriba ↑</a>
+        </div>
+      </footer>
+    </main>
+  </body>
+</html>
