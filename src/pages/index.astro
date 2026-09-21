@@ -146,5 +146,36 @@ const year = new Date().getFullYear();
         </div>
       </footer>
     </main>
+    <script is:inline>
+      (() => {
+        const root = document.documentElement;
+        const hero = document.querySelector(".hero");
+        let scrollTimer;
+        let scrollFrame = 0;
+
+        const pauseDuringScroll = () => {
+          if (!scrollFrame) {
+            scrollFrame = requestAnimationFrame(() => {
+              root.classList.add("is-scrolling");
+              scrollFrame = 0;
+            });
+          }
+          clearTimeout(scrollTimer);
+          scrollTimer = setTimeout(() => root.classList.remove("is-scrolling"), 140);
+        };
+
+        window.addEventListener("scroll", pauseDuringScroll, { passive: true });
+
+        if (hero && "IntersectionObserver" in window) {
+          new IntersectionObserver(([entry]) => {
+            root.classList.toggle("hero-outside-view", !entry.isIntersecting);
+          }).observe(hero);
+        }
+
+        document.addEventListener("visibilitychange", () => {
+          root.classList.toggle("page-hidden", document.hidden);
+        });
+      })();
+    </script>
   </body>
 </html>
