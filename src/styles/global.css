@@ -56,14 +56,19 @@ summary { font: inherit; }
 .intro-copy p { margin: 0 0 45px; color: #cdbfb5; font-size: clamp(1rem, 1.35vw, 1.3rem); line-height: 1.6; }
 .text-link { display: inline-flex; align-items: center; justify-content: space-between; width: 100%; border-bottom: 1px solid #765f53; padding-bottom: 13px; color: var(--acid); font-size: 0.75rem; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase; }
 
-.trial { position: relative; min-height: 90svh; overflow: hidden; contain: paint; display: grid; grid-template-columns: 1fr 1.15fr; background: var(--acid); color: var(--ink); }
-.trial-number { align-self: end; padding: 0 0 2vw 4vw; font-size: clamp(15rem, 40vw, 44rem); font-weight: 900; letter-spacing: -0.13em; line-height: 0.64; color: rgba(9, 11, 13, 0.08); }
-.trial-content { position: relative; z-index: 2; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; padding: 9vw 6vw 9vw 2vw; }
+.trial { position: relative; min-height: 90svh; overflow: hidden; contain: paint; display: grid; grid-template-columns: 1.05fr 0.95fr; background: var(--acid); color: var(--ink); }
+.trial-invitation { display: flex; min-width: 0; flex-direction: column; justify-content: space-between; padding: 8vw 5vw 5vw; border-right: 1px solid rgba(37, 25, 20, 0.2); }
+.trial-eyebrow { font-size: 0.76rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
+.trial-statement { margin: 6vh 0; font-size: clamp(3.4rem, 5vw, 6.3rem); font-weight: 900; letter-spacing: -0.075em; line-height: 0.8; }
+.trial-statement em { display: inline-block; margin-top: 0.18em; font-family: Georgia, "Times New Roman", serif; font-size: 0.72em; font-weight: 400; letter-spacing: -0.055em; line-height: 0.95; text-transform: none; }
+.trial-promises { display: grid; border-top: 1px solid rgba(37, 25, 20, 0.32); }
+.trial-promises span { display: flex; justify-content: space-between; gap: 18px; padding: 15px 0; border-bottom: 1px solid rgba(37, 25, 20, 0.18); font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+.trial-promises span::after { content: "↗"; font-size: 0.8rem; }
+.trial-content { position: relative; z-index: 2; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; padding: 9vw 6vw; }
 .trial-content > p { margin: 0 0 5vh; font-size: 0.76rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
 .trial-content h2 { margin: 0 0 35px; font-size: clamp(5rem, 11vw, 12rem); line-height: 0.74; letter-spacing: -0.085em; }
 .trial-content > span { max-width: 480px; font-size: 1.12rem; line-height: 1.6; }
 .trial-content > a { display: flex; justify-content: space-between; min-width: 270px; margin-top: 45px; border-bottom: 2px solid currentColor; padding: 0 0 13px; font-size: 0.78rem; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; }
-.trial-seal { position: absolute; right: -70px; top: 40px; display: grid; width: 225px; height: 225px; place-items: center; border: 1px solid rgba(0, 0, 0, 0.25); border-radius: 50%; font-size: 0.62rem; font-weight: 800; letter-spacing: 0.16em; transform: rotate(24deg); }
 
 .classes { padding: 10vw 5vw; contain: paint; background: var(--paper); color: var(--ink); }
 .section-heading { display: grid; grid-template-columns: 1fr 2.6fr 1fr; gap: 4vw; align-items: end; padding-bottom: 8vw; }
@@ -161,10 +166,10 @@ summary { font: inherit; }
   .intro h1 { font-size: clamp(3.1rem, 15vw, 5.4rem); }
   .intro-copy p { margin-top: 35px; }
   .trial { min-height: auto; grid-template-columns: 1fr; }
-  .trial-number { position: absolute; left: -20px; bottom: 0; font-size: 23rem; }
-  .trial-content { min-height: 780px; padding: 90px 20px; }
-  .trial-content h2 { font-size: 26vw; }
-  .trial-seal { width: 155px; height: 155px; right: -65px; top: 22px; font-size: 0.48rem; }
+  .trial-invitation { min-height: 680px; padding: 85px 20px 55px; border-right: 0; border-bottom: 1px solid rgba(37, 25, 20, 0.2); }
+  .trial-statement { margin: 9vh 0; font-size: clamp(2.5rem, 12vw, 4.8rem); }
+  .trial-content { min-height: 700px; padding: 85px 20px; }
+  .trial-content h2 { font-size: clamp(4rem, 18vw, 7.5rem); }
   .classes { padding: 95px 20px; }
   .section-heading { padding-bottom: 65px; }
   .section-heading h2 { font-size: 22vw; }
