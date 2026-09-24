@@ -7,12 +7,15 @@
     "install:ci": "npm ci --include=dev --no-audit --no-fund",
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "booking:dev": "npm run build && wrangler pages dev dist",
+    "booking:db:init": "wrangler d1 execute core-booking --local --file=./db/schema.sql"
   },
   "dependencies": {
     "astro": "^5.14.1"
   },
   "devDependencies": {
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.2",
+    "wrangler": "^4.139.0"
   }
 }

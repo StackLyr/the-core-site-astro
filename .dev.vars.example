@@ -1,0 +1,6 @@
+ADMIN_PASSWORD=replace-with-a-long-unique-password
+ADMIN_SESSION_SECRET=replace-with-at-least-32-random-characters
+WOMPI_ENV=test
+WOMPI_PUBLIC_KEY=
+WOMPI_INTEGRITY_SECRET=
+WOMPI_EVENTS_SECRET=

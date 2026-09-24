@@ -1,0 +1,128 @@
+---
+import '../styles/global.css';
+import '../styles/booking.css';
+---
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="robots" content="noindex" />
+    <title>Reserva tu clase — The Core Site</title>
+    <meta name="description" content="Consulta la agenda de clases de Pilates Reformer y solicita tu reserva en The Core Site." />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body class="booking-app">
+    <div class="booking-shell">
+      <header class="booking-header">
+        <a href="/" aria-label="Volver a The Core Site"><img src="/core-logo.png" alt="The Core Site" width="720" height="304" /></a>
+        <a href="/">Volver al sitio</a>
+      </header>
+      <main>
+        <div class="booking-hero">
+          <p class="booking-eyebrow">La agenda · The Core Site</p>
+          <h1>Tu espacio<br />te espera.</h1>
+          <p>Elige el momento que mejor se adapte a ti. Tu lugar quedará confirmado cuando el estudio confirme la solicitud o Wompi confirme el pago.</p>
+        </div>
+        <div class="booking-grid">
+          <section class="booking-panel" aria-labelledby="available-heading">
+            <h2 id="available-heading">Próximas clases</h2>
+            <div class="booking-list" id="session-list" aria-live="polite"><div class="booking-empty">Cargando agenda…</div></div>
+          </section>
+          <section class="booking-panel" aria-labelledby="booking-heading">
+            <h2 id="booking-heading">Tus datos</h2>
+            <form class="booking-form" id="booking-form">
+              <p id="selected-session">Primero elige una clase disponible.</p>
+              <label>Nombre completo<input name="name" autocomplete="name" required minlength="2" maxlength="100" /></label>
+              <label>Correo electrónico<input name="email" type="email" autocomplete="email" required maxlength="254" /></label>
+              <label>Teléfono<input name="phone" type="tel" autocomplete="tel" required minlength="7" maxlength="35" /></label>
+              <button type="submit" disabled>Solicitar mi lugar</button>
+              <div class="booking-message" id="booking-message" role="status" aria-live="polite"></div>
+              <small class="booking-note">Si la clase tiene precio publicado, continuarás al pago seguro de Wompi. No guardamos los datos de tu tarjeta.</small>
+            </form>
+          </section>
+        </div>
+      </main>
+      <footer class="booking-footer">The Core Site · David, Chiriquí · Horarios mostrados en hora de Panamá</footer>
+    </div>
+    <script>
+      const list = document.querySelector('#session-list');
+      const form = document.querySelector('#booking-form');
+      const selected = document.querySelector('#selected-session');
+      const message = document.querySelector('#booking-message');
+      const submit = form.querySelector('button[type="submit"]');
+      let chosen = null;
+      const dateFormat = new Intl.DateTimeFormat('es-PA', { timeZone: 'America/Panama', day: 'numeric', month: 'short' });
+      const timeFormat = new Intl.DateTimeFormat('es-PA', { timeZone: 'America/Panama', hour: 'numeric', minute: '2-digit' });
+      function card(session) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'session-card';
+        button.disabled = session.spots_left < 1;
+        button.setAttribute('aria-pressed', 'false');
+        const date = new Date(session.starts_at);
+        const datePart = document.createElement('span'); datePart.className = 'session-date';
+        const [day, month] = dateFormat.format(date).replace('.', '').split(' ');
+        const dayStrong = document.createElement('strong'); dayStrong.textContent = day;
+        const monthSmall = document.createElement('small'); monthSmall.textContent = month;
+        datePart.append(dayStrong, monthSmall);
+        const meta = document.createElement('span'); meta.className = 'session-meta';
+        const title = document.createElement('strong'); title.textContent = session.class_name;
+        const time = document.createElement('small'); time.textContent = `${timeFormat.format(date)} · ${session.duration_minutes} min`;
+        meta.append(title, time);
+        const side = document.createElement('span'); side.className = 'session-side';
+        const price = document.createElement('strong'); price.textContent = session.price_cents === null ? 'Consultar' : session.price_cents === 0 ? 'Sin pago en línea' : `$${(session.price_cents / 100).toFixed(2)}`;
+        const spots = document.createElement('small'); spots.textContent = session.spots_left > 0 ? `${session.spots_left} ${session.spots_left === 1 ? 'cupo' : 'cupos'}` : 'Sin cupos';
+        side.append(price, spots); button.append(datePart, meta, side);
+        button.addEventListener('click', () => {
+          list.querySelectorAll('.session-card').forEach(item => item.setAttribute('aria-pressed', 'false'));
+          button.setAttribute('aria-pressed', 'true'); chosen = session;
+          selected.textContent = `${session.class_name} · ${dateFormat.format(date)} a las ${timeFormat.format(date)} (Panamá)`;
+          submit.disabled = false; message.textContent = '';
+        });
+        return button;
+      }
+      async function loadSessions() {
+        try {
+          const response = await fetch('/api/sessions', { cache: 'no-store' });
+          const data = await response.json();
+          if (!response.ok) throw new Error(data.error || 'No se pudo cargar la agenda.');
+          list.replaceChildren();
+          if (!data.sessions.length) { const empty = document.createElement('div'); empty.className = 'booking-empty'; empty.textContent = 'Pronto publicaremos nuevos horarios. Escríbenos para consultar disponibilidad.'; list.append(empty); }
+          else data.sessions.forEach(session => list.append(card(session)));
+        } catch (error) { list.replaceChildren(); const empty = document.createElement('div'); empty.className = 'booking-empty'; empty.textContent = error.message; list.append(empty); }
+      }
+      form.addEventListener('submit', async event => {
+        event.preventDefault(); if (!chosen) return;
+        submit.disabled = true; message.textContent = 'Procesando tu solicitud…';
+        const values = Object.fromEntries(new FormData(form));
+        try {
+          const response = await fetch('/api/bookings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...values, sessionId: chosen.id }) });
+          const data = await response.json(); if (!response.ok) throw new Error(data.error || 'No se pudo reservar.');
+          if (data.checkout) {
+            message.textContent = 'Abriendo el pago seguro de Wompi…';
+            const checkout = document.createElement('form'); checkout.method = 'GET'; checkout.action = data.checkout.url;
+            Object.entries(data.checkout.fields).forEach(([name, value]) => { const input = document.createElement('input'); input.type = 'hidden'; input.name = name; input.value = String(value); checkout.append(input); });
+            document.body.append(checkout); checkout.submit(); return;
+          }
+          message.textContent = data.message; form.reset(); chosen = null; selected.textContent = 'Primero elige una clase disponible.'; await loadSessions();
+        } catch (error) { message.textContent = error.message; submit.disabled = false; }
+      });
+      const bookingId = new URLSearchParams(location.search).get('reserva');
+      async function checkPaymentStatus(attempt = 0) {
+        try {
+          const response = await fetch(`/api/booking-status/${bookingId}`, { cache: 'no-store' });
+          const data = await response.json();
+          if (data.status === 'confirmed') { message.textContent = '¡Pago confirmado! Tu lugar está reservado.'; return; }
+          if (data.status === 'review') { message.textContent = 'Recibimos el pago. El estudio está revisando el cupo y te contactará.'; return; }
+          if (data.status === 'payment_failed') { message.textContent = 'El pago no se completó. Contacta al estudio para intentarlo de nuevo.'; return; }
+          message.textContent = 'Estamos verificando el pago. No cierres esta página todavía.';
+          if (attempt < 12) setTimeout(() => checkPaymentStatus(attempt + 1), 5000);
+          else message.textContent = 'La confirmación aún está pendiente. Contacta al estudio con tu referencia de reserva.';
+        } catch { message.textContent = 'No pudimos consultar el pago. Contacta al estudio para verificarlo.'; }
+      }
+      if (bookingId && /^[0-9a-f-]{36}$/.test(bookingId)) checkPaymentStatus();
+      loadSessions();
+    </script>
+  </body>
+</html>
