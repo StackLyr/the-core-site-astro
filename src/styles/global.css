@@ -33,8 +33,6 @@ summary { font: inherit; }
 .hero-image { position: absolute; z-index: 1; inset: auto 0 0; width: 100%; height: 90%; transform: translateZ(0); backface-visibility: hidden; object-fit: cover; object-position: center 58%; mix-blend-mode: multiply; filter: grayscale(1) contrast(1.16) brightness(0.96); opacity: 0.84; }
 .hero::after { content: ""; position: absolute; z-index: 2; inset: 0; background: linear-gradient(to bottom, rgba(82, 62, 51, 0) 52%, rgba(37, 25, 20, 0.44)); pointer-events: none; }
 .hero-kicker { position: absolute; z-index: 3; left: 3vw; bottom: 25px; display: flex; gap: 26px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
-.scroll-cue { position: absolute; z-index: 3; right: 3vw; bottom: 20px; display: grid; width: 44px; height: 44px; place-items: center; border: 1px solid var(--line); border-radius: 50%; font-size: 1.4rem; transition: 0.2s; }
-.scroll-cue:hover { border-color: var(--acid); color: var(--acid); }
 .motion-paused .hero-copy-track,
 .motion-paused .social-track,
 .page-hidden .hero-copy-track,
@@ -195,7 +193,6 @@ summary { font: inherit; }
   .hero-copy-track { animation-duration: 28s; }
   .hero-image { height: 88%; object-position: 57% center; }
   .hero-kicker { left: 20px; bottom: 23px; flex-direction: column; gap: 5px; }
-  .scroll-cue { right: 20px; }
   .intro { padding: 72px 20px 82px; }
   .intro-grid { margin-top: 60px; }
   .intro h1 { font-size: clamp(3.1rem, 15vw, 5.4rem); }
