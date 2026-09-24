@@ -13,38 +13,50 @@ const whatsappUrl = "https://wa.link/g1usk0";
 const whatsappPhone = "50763930891";
 const reviewUrl = "https://g.page/r/CYwLzRQcMcMnECE/review";
 const mapsUrl = "https://www.google.com/maps/search/?api=1&query=The+Core+Site%2C+C.+D+Sur+4567%2C+David%2C+Provincia+de+Chiriqu%C3%AD";
-const mapsEmbedUrl = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3700.073487454364!2d-82.43439902498812!3d8.426679291612587!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8fa59d187a562411%3A0x27c3311c14cd0b8c!2sThe%20Core%20Site!5e1!3m2!1sen!2spa!4v1790004044585!5m2!1sen!2spa";
+const mapsEmbedUrl = "https://www.google.com/maps?q=The%20Core%20Site%2C%20C.%20D%20Sur%204567%2C%20David%2C%20Chiriqu%C3%AD%2C%20Panam%C3%A1&z=16&output=embed";
 
 const socialPosts = [
   {
-    label: "Técnica",
-    title: "Una buena postura cambia todo.",
-    text: "Alineación, control y atención a cada detalle para moverte con intención.",
-    image: "/instagram-posture.jpg",
-    width: 1350,
-    height: 1687,
+    image: "/instagram-posture.webp",
+    width: 1080,
+    height: 1350,
     href: "https://www.instagram.com/thecoresite/p/DdhgFvszVRt/",
     alt: "Guía visual de postura y alineación durante un ejercicio de Pilates"
   },
   {
-    label: "Reto",
-    title: "Elige tu desafío.",
-    text: "Progresiones que respetan tu nivel y te invitan a descubrir de qué eres capaz.",
-    image: "/instagram-challenge.jpg",
+    image: "/instagram-challenge.webp",
     width: 640,
     height: 1136,
     href: "https://www.instagram.com/thecoresite/reel/DdDCT9mzq01/",
     alt: "Instructora de Pilates sentada sobre una colchoneta en el estudio"
   },
   {
-    label: "Detalle",
-    title: "Todo está en los detalles.",
-    text: "Acompañamiento cercano para construir fuerza, confianza y una práctica que se sienta tuya.",
-    image: "/instagram-details.jpg",
+    image: "/instagram-connect.webp",
+    width: 1200,
+    height: 1600,
+    href: "https://www.instagram.com/iamyai_/p/DdNWgS5gF5u/",
+    alt: "Comunidad de The Core Site frente al espejo del estudio"
+  },
+  {
+    image: "/instagram-coach.webp",
     width: 640,
     height: 1136,
-    href: "https://www.instagram.com/thecoresite/reel/DcokgTaPJe7/",
-    alt: "Mujer entrenando brazos frente al espejo de un estudio de Pilates"
+    href: "https://www.instagram.com/thecoresite/reel/Dc6RYW8PEQm/",
+    alt: "Coach guiando una clase de Pilates en The Core Site"
+  },
+  {
+    image: "/instagram-coffee.webp",
+    width: 900,
+    height: 1125,
+    href: "https://www.instagram.com/thecoresite/p/Dcygf_1IFfH/",
+    alt: "Alumna entrenando brazos durante una clase de Pilates"
+  },
+  {
+    image: "/instagram-equipment.webp",
+    width: 640,
+    height: 1136,
+    href: "https://www.instagram.com/thecoresite/reel/Dccc4qXPxYq/",
+    alt: "Equipo de Pilates preparado sobre las colchonetas de The Core Site"
   }
 ];
 
@@ -63,7 +75,7 @@ const year = new Date().getFullYear();
   </head>
   <body>
     <main>
-      <section class="hero" id="inicio">
+      <section class="hero" id="inicio" data-motion>
         <header class="site-header">
           <nav class="desktop-nav" aria-label="Navegación principal">
             <a href="#inicio">Inicio</a>
@@ -73,7 +85,7 @@ const year = new Date().getFullYear();
             <a href="#contacto">Contacto</a>
           </nav>
           <a class="brand" href="#inicio" aria-label="The Core Site, inicio">
-            <img class="brand-logo" src="/core-logo.png" alt="" width="720" height="304" />
+            <img class="brand-logo" src="/core-logo.png" alt="" width="720" height="304" decoding="async" />
           </a>
           <a class="header-cta" href={whatsappUrl} target="_blank" rel="noopener noreferrer">Clase de prueba</a>
           <details class="mobile-menu">
@@ -95,7 +107,7 @@ const year = new Date().getFullYear();
             <div class="hero-copy-group"><span>PILATES</span><span>PILATES</span></div>
           </div>
         </div>
-        <img class="hero-image" src="/pilates-hero.webp" alt="Mujer practicando Pilates Reformer en un estudio contemporáneo" width="1536" height="864" fetchpriority="high" />
+        <img class="hero-image" src="/pilates-hero.webp" alt="Mujer practicando Pilates Reformer en un estudio contemporáneo" width="1536" height="864" fetchpriority="high" decoding="async" />
         <div class="hero-kicker"><span>Movimiento consciente</span><span>Fuerza real</span></div>
         <a class="scroll-cue" href="#metodo" aria-label="Descubrir el método">↓</a>
       </section>
@@ -111,15 +123,26 @@ const year = new Date().getFullYear();
         </div>
       </section>
 
-      <section class="trial" id="reserva">
-        <div class="trial-number" aria-hidden="true">01</div>
-        <div class="trial-content">
-          <p>Tu primera experiencia</p>
-          <h2>PRIMERA<br />CLASE</h2>
-          <span>Una sesión para conocer el reformer, tu nivel y la forma de entrenar que mejor encaja contigo.</span>
-          <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">Reservar clase <span aria-hidden="true">↗</span></a>
+      <section class="experience" id="reserva">
+        <div class="experience-media" aria-label="Momentos dentro de The Core Site">
+          <div class="experience-image experience-image-primary">
+            <img src="/instagram-connect.webp" alt="Alumna dentro del estudio de The Core Site" width="1200" height="1600" loading="lazy" decoding="async" />
+          </div>
+          <div class="experience-image experience-image-secondary">
+            <img src="/instagram-challenge.webp" alt="Instructora de Pilates en el estudio" width="640" height="1136" loading="lazy" decoding="async" />
+          </div>
         </div>
-        <div class="trial-seal" aria-hidden="true">MUÉVETE · RESPIRA · AVANZA ·</div>
+        <div class="experience-copy">
+          <div class="section-label dark">Tu primera experiencia</div>
+          <h2>UN ESPACIO PARA<br />VOLVER A TU CENTRO.</h2>
+          <p class="experience-lead">En The Core Site entrenas con intención: atención real, movimiento preciso y una comunidad que te acompaña.</p>
+          <div class="experience-values">
+            <article><span aria-hidden="true"></span><div><h3>Tiempo bien invertido</h3><p>Cada sesión está pensada para que salgas más fuerte, presente y conectada contigo.</p></div></article>
+            <article><span aria-hidden="true"></span><div><h3>Guía que se siente cercana</h3><p>Te acompañamos con técnica, progresiones claras y atención a tu propio ritmo.</p></div></article>
+            <article><span aria-hidden="true"></span><div><h3>Movimiento con propósito</h3><p>Una práctica contemporánea que construye control, confianza y bienestar real.</p></div></article>
+          </div>
+          <a class="experience-link" href={whatsappUrl} target="_blank" rel="noopener noreferrer">Reserva tu primera clase <span aria-hidden="true">↗</span></a>
+        </div>
       </section>
 
       <section class="classes" id="clases">
@@ -152,37 +175,43 @@ const year = new Date().getFullYear();
             Seguir @thecoresite <span aria-hidden="true">↗</span>
           </a>
         </div>
-        <div class="social-grid">
-          {socialPosts.map((post, index) => (
-            <a class="social-card" href={post.href} target="_blank" rel="noopener noreferrer" aria-label={`${post.label}: ${post.title} — ver en Instagram`}>
-              <div class="social-media">
-                <img src={post.image} alt={post.alt} width={post.width} height={post.height} loading="lazy" decoding="async" />
-                <span class="social-number">0{index + 1}</span>
-              </div>
-              <div class="social-copy">
-                <span>{post.label}</span>
-                <h3>{post.title}</h3>
-                <p>{post.text}</p>
-                <strong>Ver publicación ↗</strong>
-              </div>
-            </a>
-          ))}
+        <div class="social-reel" aria-label="Publicaciones recientes de Instagram" data-motion>
+          <div class="social-track">
+            {socialPosts.map((post) => (
+              <a class="social-card" href={post.href} target="_blank" rel="noopener noreferrer" aria-label={`${post.alt} — ver en Instagram`}>
+                <img src={post.image} alt={post.alt} width={post.width} height={post.height} loading="lazy" decoding="async" fetchpriority="low" />
+                <span>Ver en Instagram ↗</span>
+              </a>
+            ))}
+            {socialPosts.map((post) => (
+              <a class="social-card" href={post.href} target="_blank" rel="noopener noreferrer" aria-hidden="true" tabindex="-1">
+                <img src={post.image} alt="" width={post.width} height={post.height} loading="lazy" decoding="async" fetchpriority="low" />
+                <span>Ver en Instagram ↗</span>
+              </a>
+            ))}
+          </div>
         </div>
       </section>
 
       <section class="studio" id="estudio">
         <div class="amenities-heading">
           <div class="section-label dark">04 — El estudio</div>
-          <h2>TODO PARA<br />TU PRÁCTICA.</h2>
-          <p>Un espacio boutique diseñado para que entrenes con atención, comodidad y una guía realmente cercana.</p>
+          <h2>Comodidades</h2>
+          <p>Todo lo necesario para que tu práctica se sienta simple, cómoda y acompañada.</p>
         </div>
         <ul class="amenities-grid" aria-label="Comodidades y características del estudio">
           <li><span>Pilates Reformer</span><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M7 34h34M11 34V21h26v13M16 21v-7h16v7M14 38v-4M34 38v-4" /></svg></li>
           <li><span>Grupos reducidos</span><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="17" cy="18" r="5"/><circle cx="32" cy="17" r="4"/><path d="M8 36c1-7 4-11 9-11s9 4 10 11M27 25c6 0 10 4 11 11"/></svg></li>
           <li><span>Guía personalizada</span><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="15" r="6"/><path d="M11 37c2-9 6-14 13-14s11 5 13 14M35 10v10M30 15h10"/></svg></li>
           <li><span>Equipamiento premium</span><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M10 28h28M14 21v14M34 21v14M8 24v8M40 24v8M18 24v8M30 24v8"/></svg></li>
+          <li><span>Mats y accesorios</span><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M10 14h23a7 7 0 0 1 0 14H17a7 7 0 0 0 0 14h21M10 14v21"/><circle cx="33" cy="21" r="7"/></svg></li>
+          <li><span>Espejos de cuerpo completo</span><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="12" y="7" width="24" height="34" rx="2"/><path d="m17 32 14-14M17 22l5-5"/></svg></li>
+          <li><span>Primera clase guiada</span><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M10 11h28v28H10zM17 25l5 5 10-12"/></svg></li>
           <li><span>Atención con reserva</span><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="9" y="12" width="30" height="28" rx="3"/><path d="M16 8v8M32 8v8M9 20h30M17 30l5 5 10-11"/></svg></li>
+          <li><span>Reserva por WhatsApp</span><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M38 22a14 14 0 0 1-20 13l-8 3 3-8A14 14 0 1 1 38 22Z"/><path d="M19 16c1 7 5 11 12 13M20 17l-3 3M30 29l3-3"/></svg></li>
           <li><span>Plaza JBC · David</span><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M37 20c0 10-13 21-13 21S11 30 11 20a13 13 0 1 1 26 0Z"/><circle cx="24" cy="20" r="4"/></svg></li>
+          <li><span>Ambiente boutique</span><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 7l4 11 11 4-11 4-4 11-4-11-11-4 11-4 4-11Z"/></svg></li>
+          <li><span>Fácil llegada</span><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 36h32M12 36l3-15h18l3 15M18 21l3-8h6l3 8M18 29h12"/></svg></li>
         </ul>
       </section>
 
@@ -221,7 +250,14 @@ const year = new Date().getFullYear();
             <button type="submit">Enviar por WhatsApp <span aria-hidden="true">↗</span></button>
           </form>
           <div class="location-card">
-            <iframe src={mapsEmbedUrl} title="Ubicación de The Core Site en Google Maps" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            <div class="map-shell">
+              <div class="map-fallback" aria-hidden="true">
+                <span class="map-pin">●</span>
+                <strong>The Core Site</strong>
+                <small>Plaza JBC · David</small>
+              </div>
+              <iframe src={mapsEmbedUrl} title="Ubicación de The Core Site en Google Maps" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+            </div>
             <div class="location-details">
               <div>
                 <span>Visítanos</span>
@@ -275,27 +311,16 @@ const year = new Date().getFullYear();
     <script is:inline>
       (() => {
         const root = document.documentElement;
-        const hero = document.querySelector(".hero");
-        let scrollTimer;
-        let scrollFrame = 0;
+        const animatedSections = document.querySelectorAll("[data-motion]");
 
-        const pauseDuringScroll = () => {
-          if (!scrollFrame) {
-            scrollFrame = requestAnimationFrame(() => {
-              root.classList.add("is-scrolling");
-              scrollFrame = 0;
+        if ("IntersectionObserver" in window) {
+          const motionObserver = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+              entry.target.classList.toggle("motion-paused", !entry.isIntersecting);
             });
-          }
-          clearTimeout(scrollTimer);
-          scrollTimer = setTimeout(() => root.classList.remove("is-scrolling"), 140);
-        };
+          }, { rootMargin: "100px" });
 
-        window.addEventListener("scroll", pauseDuringScroll, { passive: true });
-
-        if (hero && "IntersectionObserver" in window) {
-          new IntersectionObserver(([entry]) => {
-            root.classList.toggle("hero-outside-view", !entry.isIntersecting);
-          }).observe(hero);
+          animatedSections.forEach((section) => motionObserver.observe(section));
         }
 
         document.addEventListener("visibilitychange", () => {
