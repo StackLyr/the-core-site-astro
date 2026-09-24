@@ -93,7 +93,10 @@ summary { font: inherit; }
 .community-heading { display: grid; grid-template-columns: 0.8fr 2.2fr 1fr; gap: 4vw; align-items: start; margin-inline: 5vw; }
 .community-mantra { grid-column: 3; margin: 0; color: #bdaea4; font-family: Georgia, "Times New Roman", serif; font-size: clamp(1rem, 1.4vw, 1.4rem); font-style: italic; line-height: 1.4; }
 .community-heading h2 { grid-column: 2 / 4; margin: clamp(48px, 5vw, 80px) 0 0; font-size: clamp(4.7rem, 10vw, 11.5rem); line-height: 0.76; letter-spacing: -0.085em; }
-.community-profile { grid-column: 3; margin-top: 3.5vh; }
+.community-profile { grid-column: 3; display: inline-flex; width: max-content; min-width: 237px; min-height: 62px; align-items: center; justify-content: center; gap: 13px; margin-top: 3.5vh; border: 1px solid var(--paper); padding: 0 24px; color: var(--paper); font-size: 0.82rem; font-weight: 800; letter-spacing: 0.09em; text-transform: uppercase; transition: background 0.2s, color 0.2s; }
+.community-profile svg { width: 19px; height: 19px; flex: none; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.7; }
+.community-profile:hover, .community-profile:focus-visible { background: var(--paper); color: var(--ink); }
+.community-profile:focus-visible { outline: 2px solid var(--paper); outline-offset: 3px; }
 .social-reel { --social-gap: clamp(18px, 2vw, 34px); overflow: hidden; margin-top: clamp(58px, 6vw, 96px); padding-left: var(--social-gap); mask-image: linear-gradient(to right, transparent, #000 4%, #000 96%, transparent); }
 .social-track { display: flex; width: max-content; gap: var(--social-gap); padding-right: var(--social-gap); animation: social-marquee 42s linear infinite; will-change: transform; }
 @media (hover: hover) {
@@ -176,7 +179,7 @@ summary { font: inherit; }
   .community-mantra, .community-heading h2, .community-profile { grid-column: 1; }
   .community-mantra { margin-top: 28px; }
   .community-heading h2 { margin-top: 48px; }
-  .community-profile { width: min(340px, 100%); }
+  .community-profile { width: max-content; max-width: 100%; }
   .experience { grid-template-columns: 1fr; gap: 64px; }
   .experience-media { width: min(680px, 100%); min-height: 680px; }
   .experience-copy { max-width: 760px; }
