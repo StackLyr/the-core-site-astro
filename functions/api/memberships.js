@@ -17,7 +17,7 @@ export async function onRequestPost({ request, env }) {
     await env.DB.prepare('INSERT INTO clients (id, name, email, phone) VALUES (?, ?, ?, ?) ON CONFLICT(email) DO UPDATE SET name = excluded.name, phone = excluded.phone').bind(clientId, name, email, phone).run();
     const client = await env.DB.prepare('SELECT id FROM clients WHERE email = ?').bind(email).first();
     const membershipId = crypto.randomUUID();
-    const reference = `membership-${membershipId}`;
+    const reference = `tcs-plan-${membershipId}`;
     const payment = await wompiCheckout({ env, request, reference, amountCents: plan.price_cents, email, name, returnPath: `/reservar/?membresia=${membershipId}#membresias` });
     await env.DB.prepare('INSERT INTO memberships (id, plan_id, client_id, status, class_credits, amount_cents, payment_reference) VALUES (?, ?, ?, ?, ?, ?, ?)')
       .bind(membershipId, plan.id, client.id, 'pending_payment', plan.class_credits, plan.price_cents, reference).run();

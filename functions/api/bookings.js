@@ -31,7 +31,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
     await env.DB.prepare('INSERT INTO clients (id, name, email, phone) VALUES (?, ?, ?, ?) ON CONFLICT(email) DO UPDATE SET name = excluded.name, phone = excluded.phone').bind(clientId, name, email, phone).run();
     const client = await env.DB.prepare('SELECT id FROM clients WHERE email = ?').bind(email).first();
     const bookingId = crypto.randomUUID();
-    const reference = priced ? `core-${bookingId}` : null;
+    const reference = priced ? `tcs-class-${bookingId}` : null;
     const payment = priced ? await wompiCheckout({ env, request, reference, amountCents: session.price_cents, email, name, returnPath: `/reservar/?reserva=${bookingId}` }) : null;
     const expiresAt = payment?.expiresAt || null;
     const status = priced ? 'pending_payment' : 'requested';

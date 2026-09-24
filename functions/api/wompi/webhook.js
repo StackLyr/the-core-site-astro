@@ -26,7 +26,7 @@ async function notifyMembership(env, membershipId, waitUntil) {
 }
 
 export async function onRequestPost({ request, env, waitUntil }) {
-  if (!env.DB || !env.WOMPI_EVENTS_SECRET || !['test', 'prod'].includes(env.WOMPI_ENV)) return json({ error: 'Webhook no configurado.' }, 503);
+  if (!env.DB || !['test', 'prod'].includes(env.WOMPI_ENV) || !env.WOMPI_EVENTS_SECRET?.startsWith(`${env.WOMPI_ENV}_events_`)) return json({ error: 'Webhook no configurado.' }, 503);
   try {
     const event = await bodyJson(request);
     if (event.event !== 'transaction.updated' || event.environment !== env.WOMPI_ENV || !Array.isArray(event.signature?.properties) || event.signature.properties.length < 1 || event.signature.properties.length > 20 || !Number.isInteger(event.timestamp)) return json({ error: 'Evento inválido.' }, 400);
@@ -39,6 +39,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
 
     const transaction = event.data?.transaction;
     if (!transaction?.id || !transaction?.reference || transaction.currency !== 'USD' || !Number.isInteger(transaction.amount_in_cents)) return json({ error: 'Transacción inválida.' }, 400);
+    if (!/^tcs-(class|plan)-/.test(transaction.reference)) return json({ ok: true, ignored: true });
     const booking = await env.DB.prepare('SELECT id, status, amount_cents, wompi_transaction_id FROM bookings WHERE payment_reference = ?').bind(transaction.reference).first();
     if (!booking) {
       const membership = await env.DB.prepare('SELECT m.id, m.status, m.amount_cents, m.wompi_transaction_id, p.validity_days FROM memberships m JOIN membership_plans p ON p.id = m.plan_id WHERE m.payment_reference = ?').bind(transaction.reference).first();
