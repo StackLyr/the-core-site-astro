@@ -6,6 +6,7 @@ export async function onRequestPost({ request, env }) {
   try {
     const ipHash = await adminIpHash(request, env);
     const cutoff = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+    await env.DB.prepare('DELETE FROM admin_login_failures WHERE failed_at < ?').bind(new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()).run();
     const count = await env.DB.prepare('SELECT COUNT(*) AS total FROM admin_login_failures WHERE ip_hash = ? AND failed_at > ?').bind(ipHash, cutoff).first();
     if (count.total >= 5) return Response.json({ error: 'Demasiados intentos. Intenta más tarde.' }, { status: 429, headers: { 'Retry-After': '900', 'Cache-Control': 'no-store' } });
     const body = await bodyJson(request);

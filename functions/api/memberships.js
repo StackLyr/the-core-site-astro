@@ -1,9 +1,11 @@
-import { bodyJson, cleanText, json, sameOrigin, validEmail } from '../../lib/booking.js';
+import { allowPublicRequest, bodyJson, cleanText, json, sameOrigin, validEmail } from '../../lib/booking.js';
 import { wompiCheckout, wompiConfigured } from '../../lib/payment.js';
 
 export async function onRequestPost({ request, env }) {
   if (!sameOrigin(request)) return json({ error: 'Origen no permitido.' }, 403);
   if (!env.DB || !wompiConfigured(env)) return json({ error: 'El pago de membresías aún no está configurado.' }, 503);
+  if (!env.ADMIN_SESSION_SECRET) return json({ error: 'Reservas no configuradas.' }, 503);
+  if (!(await allowPublicRequest(request, env, 'membership', 6, 60 * 60 * 1000))) return Response.json({ error: 'Demasiadas solicitudes. Intenta más tarde.' }, { status: 429, headers: { 'Retry-After': '3600', 'Cache-Control': 'no-store' } });
   try {
     const body = await bodyJson(request);
     const name = cleanText(body.name, 100);

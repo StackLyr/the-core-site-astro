@@ -1,4 +1,4 @@
-import { bodyJson, cleanText, isAdmin, json, sameOrigin, validEmail } from '../../lib/booking.js';
+import { allowPublicRequest, bodyJson, cleanText, isAdmin, json, sameOrigin, validEmail } from '../../lib/booking.js';
 import { wompiCheckout, wompiConfigured } from '../../lib/payment.js';
 import { classDate, queueEmail, sendQueuedEmail } from '../../lib/email.js';
 
@@ -16,6 +16,8 @@ export async function onRequestGet({ request, env }) {
 export async function onRequestPost({ request, env, waitUntil }) {
   if (!sameOrigin(request)) return json({ error: 'Origen no permitido.' }, 403);
   if (!env.DB) return json({ error: 'Base de datos no configurada.' }, 503);
+  if (!env.ADMIN_SESSION_SECRET) return json({ error: 'Reservas no configuradas.' }, 503);
+  if (!(await allowPublicRequest(request, env, 'booking', 12, 60 * 60 * 1000))) return Response.json({ error: 'Demasiadas solicitudes. Intenta más tarde.' }, { status: 429, headers: { 'Retry-After': '3600', 'Cache-Control': 'no-store' } });
   try {
     const body = await bodyJson(request);
     const name = cleanText(body.name, 100);
