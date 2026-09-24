@@ -179,13 +179,13 @@ const year = new Date().getFullYear();
           <div class="social-track">
             {socialPosts.map((post) => (
               <a class="social-card" href={post.href} target="_blank" rel="noopener noreferrer" aria-label={`${post.alt} — ver en Instagram`}>
-                <img src={post.image} alt={post.alt} width={post.width} height={post.height} loading="lazy" decoding="async" fetchpriority="low" />
+                <img src={post.image} alt={post.alt} width={post.width} height={post.height} loading="eager" decoding="async" fetchpriority="low" />
                 <span>Ver en Instagram</span>
               </a>
             ))}
             {socialPosts.map((post) => (
               <a class="social-card" href={post.href} target="_blank" rel="noopener noreferrer" aria-hidden="true" tabindex="-1">
-                <img src={post.image} alt="" width={post.width} height={post.height} loading="lazy" decoding="async" fetchpriority="low" />
+                <img src={post.image} alt="" width={post.width} height={post.height} loading="eager" decoding="async" fetchpriority="low" />
                 <span>Ver en Instagram</span>
               </a>
             ))}
