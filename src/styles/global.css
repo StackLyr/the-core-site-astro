@@ -96,7 +96,9 @@ summary { font: inherit; }
 .community-profile { grid-column: 3; margin-top: 3.5vh; }
 .social-reel { --social-gap: clamp(18px, 2vw, 34px); overflow: hidden; margin-top: clamp(58px, 6vw, 96px); padding-left: var(--social-gap); mask-image: linear-gradient(to right, transparent, #000 4%, #000 96%, transparent); }
 .social-track { display: flex; width: max-content; gap: var(--social-gap); padding-right: var(--social-gap); animation: social-marquee 42s linear infinite; will-change: transform; }
-.social-reel:hover .social-track, .social-reel:focus-within .social-track { animation-play-state: paused; }
+@media (hover: hover) {
+  .social-reel:hover .social-track, .social-reel:focus-within .social-track { animation-play-state: paused; }
+}
 .social-card { position: relative; flex: 0 0 clamp(270px, 29vw, 520px); overflow: hidden; aspect-ratio: 4 / 5; border-radius: 28px; background: var(--slate-dark); }
 .social-card::after { content: ""; position: absolute; inset: auto 0 0; height: 28%; background: linear-gradient(to top, rgba(37, 25, 20, 0.72), transparent); opacity: 0; transition: opacity 0.3s ease; pointer-events: none; }
 .social-card img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform 0.65s cubic-bezier(0.2, 0.7, 0.2, 1); }
@@ -225,11 +227,9 @@ summary { font: inherit; }
   .community { padding: 78px 0 84px; }
   .community-heading { margin-inline: 20px; }
   .community-heading h2 { font-size: 19vw; line-height: 0.82; letter-spacing: -0.07em; }
-  .social-reel { --social-gap: 16px; overflow-x: auto; margin-top: 58px; padding: 0 20px; mask-image: none; scroll-snap-type: x mandatory; overscroll-behavior-inline: contain; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
-  .social-reel::-webkit-scrollbar { display: none; }
-  .social-track { padding-right: 0; animation: none; will-change: auto; }
-  .social-card { flex-basis: min(78vw, 340px); border-radius: 20px; scroll-snap-align: start; }
-  .social-card[aria-hidden="true"] { display: none; }
+  .social-reel { --social-gap: 16px; overflow: hidden; margin-top: 58px; padding-left: 20px; mask-image: none; }
+  .social-track { animation-duration: 34s; }
+  .social-card { flex-basis: min(78vw, 340px); border-radius: 20px; }
   .studio { padding: 72px 20px 82px; }
   .amenities-heading h2 { margin-top: 22px; font-size: 16vw; }
   .amenities-grid { grid-template-columns: 1fr; gap: 9px; margin-top: 46px; }
