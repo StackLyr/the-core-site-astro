@@ -1,6 +1,8 @@
-# Wompi compartido en sandbox — decisión pendiente
+# Wompi compartido en sandbox — arquitectura del demo
 
-La cuenta de pruebas que usa The Core Site también se está usando para ferretería B1 y un SaaS de citas. Wompi Panamá documenta una URL de eventos por ambiente de cada comercio. **No se debe sustituir la URL actual**: dejaría de confirmar eventos de los otros sistemas salvo que se haya instalado y probado antes un receptor central que los distribuya.
+La cuenta de pruebas que usa The Core Site también se está usando para otras demostraciones. Wompi Panamá permite una URL de eventos por ambiente de cada comercio. La URL de Sandbox permanece apuntando a la floristería; después de validar la firma, ese endpoint reenvía exclusivamente referencias de The Core Site a `https://the-core-site-astro.pages.dev/api/wompi/webhook`.
+
+Esta arquitectura es temporal y exclusiva para demostraciones sin dinero real. Si The Core Site contrata el sistema, debe usar su propio comercio Wompi, sus propias llaves y su propia URL de eventos.
 
 ## Lo que ya está preparado
 
@@ -10,14 +12,16 @@ La cuenta de pruebas que usa The Core Site también se está usando para ferrete
 - Eventos de referencias ajenas se ignoran con respuesta HTTP 200 después de verificar la firma.
 - Sandbox y producción se separan por los prefijos de las llaves; una llave de producción no activa un entorno marcado `test`.
 
-Esto se probó **localmente con llaves sintéticas**, no con el comercio de Wompi. No demuestra aún que WooCommerce o el SaaS reenvíen eventos a The Core Site.
+El procesamiento interno se probó localmente con llaves sintéticas. El enrutador compartido tiene pruebas unitarias y conserva intactas las referencias de la floristería, pero todavía falta desplegar ambos cambios, configurar sus secretos y ejecutar una compra completa en Sandbox.
 
-## Opciones seguras para recibir eventos reales
+## Flujo elegido para el demo
 
-1. **Cuenta/comercio Wompi independiente para The Core Site:** cada negocio conserva sus llaves y URL. Es la mejor separación si cobran para entidades comerciales distintas.
-2. **Cuenta compartida y receptor central:** la URL existente recibe todos los eventos, verifica su firma y los distribuye según referencia a WooCommerce, el SaaS y The Core Site. Antes de modificar la URL hay que conocer el receptor actual y probar los tres flujos de sandbox de principio a fin, incluyendo reintentos, fallos y pedidos cerrados en el navegador.
-3. **Sin receptor central:** no habilitar pagos de The Core Site todavía. Consultar manualmente una transacción no reemplaza al webhook: si el cliente cierra la pestaña, podríamos no enterarnos del pago.
+1. Wompi envía todos los eventos Sandbox a la URL ya registrada de la floristería.
+2. El endpoint valida la firma con el secreto de eventos compartido.
+3. Referencias `tcs-class-<uuid>` y `tcs-plan-<uuid>` se reenvían al endpoint de The Core Site; referencias `FLV1-*` siguen su flujo normal.
+4. The Core Site vuelve a validar firma, ambiente, referencia, importe y moneda antes de confirmar la reserva o membresía.
+5. Si The Core Site no responde correctamente, el enrutador devuelve error para conservar los reintentos de Wompi.
 
-Para escoger hace falta saber qué sistema controla la URL actual, si se puede modificar sin perder el plugin de WooCommerce y si los tres proyectos comparten el mismo comercio legal. No copiar llaves ni contraseñas en mensajes o en Git. Configurar secretos únicamente en `.dev.vars` local (ignorado) y, luego, en secretos de Cloudflare.
+No copiar llaves ni contraseñas en mensajes o en Git. Configurar secretos únicamente en `.dev.vars` local (ignorado), en secretos de Cloudflare y en variables protegidas de Vercel.
 
 Fuentes: [eventos de Wompi Panamá](https://docs.wompi.co/docs/panama/eventos/), [ambientes y llaves](https://docs.wompi.co/docs/panama/ambientes-y-llaves/), [seguimiento de transacciones](https://docs.wompi.co/docs/panama/seguimiento-de-transacciones/).
