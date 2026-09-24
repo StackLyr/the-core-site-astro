@@ -24,9 +24,14 @@ import '../styles/booking.css';
           <h1>Tu espacio<br />te espera.</h1>
           <p>Elige el momento que mejor se adapte a ti. Tu lugar quedará confirmado cuando el estudio confirme la solicitud o Wompi confirme el pago.</p>
         </div>
+        <section class="booking-steps" aria-labelledby="steps-heading">
+          <h2 id="steps-heading">Así de sencillo</h2>
+          <ol><li><strong>01 · Explora la semana</strong><span>Consulta las próximas clases y los cupos disponibles.</span></li><li><strong>02 · Elige tu lugar</strong><span>Deja tus datos para solicitar la reserva o continuar al pago.</span></li><li><strong>03 · Espera la confirmación</strong><span>Recibirás un correo cuando el estudio confirme la clase o se apruebe el pago.</span></li></ol>
+        </section>
         <div class="booking-grid">
           <section class="booking-panel" aria-labelledby="available-heading">
-            <h2 id="available-heading">Próximas clases</h2>
+            <div class="schedule-head"><h2 id="available-heading">Horario semanal</h2><div class="week-controls"><button id="week-prev" type="button" aria-label="Semana anterior">‹</button><span id="week-label"></span><button id="week-next" type="button" aria-label="Semana siguiente">›</button></div></div>
+            <div class="week-days" id="week-days" aria-label="Días de la semana"></div>
             <div class="booking-list" id="session-list" aria-live="polite"><div class="booking-empty">Cargando agenda…</div></div>
           </section>
           <section class="booking-panel" aria-labelledby="booking-heading">
@@ -42,6 +47,19 @@ import '../styles/booking.css';
             </form>
           </section>
         </div>
+        <section class="membership-section" id="membresias" aria-labelledby="memberships-heading">
+          <p class="booking-eyebrow">Tu práctica, a tu ritmo</p><h2 id="memberships-heading">Membresías</h2>
+          <p>Planes de clases con vigencia clara y pago seguro. Publicaremos aquí las opciones disponibles del estudio.</p>
+          <div id="membership-list" class="membership-list" aria-live="polite"></div>
+          <form id="membership-form" class="booking-form membership-form" hidden>
+            <strong id="selected-plan"></strong>
+            <label>Nombre completo<input name="name" autocomplete="name" required minlength="2" maxlength="100" /></label>
+            <label>Correo electrónico<input name="email" type="email" autocomplete="email" required maxlength="254" /></label>
+            <label>Teléfono<input name="phone" type="tel" autocomplete="tel" required minlength="7" maxlength="35" /></label>
+            <button type="submit">Continuar a Wompi</button><div class="booking-message" id="membership-message" role="status"></div>
+            <small>No es una suscripción automática: cada membresía se compra por separado. El estudio te ayudará a usar tus clases.</small>
+          </form>
+        </section>
       </main>
       <footer class="booking-footer">The Core Site · David, Chiriquí · Horarios mostrados en hora de Panamá</footer>
     </div>
@@ -52,8 +70,31 @@ import '../styles/booking.css';
       const message = document.querySelector('#booking-message');
       const submit = form.querySelector('button[type="submit"]');
       let chosen = null;
+      let sessions = [];
+      let weekOffset = 0;
+      let chosenPlan = null;
+      const weekDays = document.querySelector('#week-days');
+      const weekLabel = document.querySelector('#week-label');
       const dateFormat = new Intl.DateTimeFormat('es-PA', { timeZone: 'America/Panama', day: 'numeric', month: 'short' });
       const timeFormat = new Intl.DateTimeFormat('es-PA', { timeZone: 'America/Panama', hour: 'numeric', minute: '2-digit' });
+      const dayFormat = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Panama', year: 'numeric', month: '2-digit', day: '2-digit' });
+      const dayKey = date => { const parts = Object.fromEntries(dayFormat.formatToParts(date).filter(part => part.type !== 'literal').map(part => [part.type, part.value])); return `${parts.year}-${parts.month}-${parts.day}`; };
+      function weekStart(offset = 0) { const today = new Date(); const weekday = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Panama', weekday: 'short' }).format(today); const mondayDistance = ({ Sun: 6, Mon: 0, Tue: 1, Wed: 2, Thu: 3, Fri: 4, Sat: 5 })[weekday]; const base = new Date(`${dayKey(today)}T12:00:00-05:00`); base.setUTCDate(base.getUTCDate() - mondayDistance + offset * 7); return base; }
+      let selectedDay = dayKey(new Date());
+      function renderSchedule() {
+        const monday = weekStart(weekOffset);
+        const sunday = new Date(monday); sunday.setUTCDate(monday.getUTCDate() + 6);
+        weekLabel.textContent = `${dateFormat.format(monday)} — ${dateFormat.format(sunday)}`;
+        document.querySelector('#week-prev').disabled = weekOffset === 0;
+        document.querySelector('#week-next').disabled = weekOffset >= 7;
+        const days = Array.from({ length: 7 }, (_, index) => { const day = new Date(monday); day.setUTCDate(monday.getUTCDate() + index); return day; });
+        if (!days.some(day => dayKey(day) === selectedDay)) selectedDay = weekOffset === 0 ? dayKey(new Date()) : dayKey(days[0]);
+        weekDays.replaceChildren();
+        days.forEach(day => { const key = dayKey(day); const button = document.createElement('button'); button.type = 'button'; button.className = 'week-day'; button.setAttribute('aria-pressed', String(key === selectedDay)); button.innerHTML = `<span>${new Intl.DateTimeFormat('es-PA', { timeZone: 'America/Panama', weekday: 'short' }).format(day)}</span><strong>${new Intl.DateTimeFormat('es-PA', { timeZone: 'America/Panama', day: 'numeric' }).format(day)}</strong>`; button.addEventListener('click', () => { selectedDay = key; renderSchedule(); }); weekDays.append(button); });
+        list.replaceChildren(); const visible = sessions.filter(session => dayKey(new Date(session.starts_at)) === selectedDay);
+        if (!visible.length) { const empty = document.createElement('div'); empty.className = 'booking-empty'; empty.textContent = 'No hay clases publicadas este día. Prueba otro día de la semana.'; list.append(empty); }
+        else visible.forEach(session => list.append(card(session)));
+      }
       function card(session) {
         const button = document.createElement('button');
         button.type = 'button';
@@ -87,11 +128,19 @@ import '../styles/booking.css';
           const response = await fetch('/api/sessions', { cache: 'no-store' });
           const data = await response.json();
           if (!response.ok) throw new Error(data.error || 'No se pudo cargar la agenda.');
-          list.replaceChildren();
-          if (!data.sessions.length) { const empty = document.createElement('div'); empty.className = 'booking-empty'; empty.textContent = 'Pronto publicaremos nuevos horarios. Escríbenos para consultar disponibilidad.'; list.append(empty); }
-          else data.sessions.forEach(session => list.append(card(session)));
+          sessions = data.sessions;
+          if (sessions.length && !sessions.some(session => dayKey(new Date(session.starts_at)) === selectedDay)) {
+            const first = new Date(sessions[0].starts_at);
+            selectedDay = dayKey(first);
+            const firstAtNoon = new Date(`${selectedDay}T12:00:00-05:00`);
+            weekOffset = Math.min(7, Math.max(0, Math.floor((firstAtNoon.getTime() - weekStart(0).getTime()) / (7 * 86400000))));
+          }
+          renderSchedule();
         } catch (error) { list.replaceChildren(); const empty = document.createElement('div'); empty.className = 'booking-empty'; empty.textContent = error.message; list.append(empty); }
       }
+      document.querySelector('#week-prev').addEventListener('click', () => { weekOffset = Math.max(0, weekOffset - 1); renderSchedule(); });
+      document.querySelector('#week-next').addEventListener('click', () => { weekOffset = Math.min(7, weekOffset + 1); renderSchedule(); });
+      function redirectToCheckout(checkoutData) { const checkout = document.createElement('form'); checkout.method = 'GET'; checkout.action = checkoutData.url; Object.entries(checkoutData.fields).forEach(([name, value]) => { const input = document.createElement('input'); input.type = 'hidden'; input.name = name; input.value = String(value); checkout.append(input); }); document.body.append(checkout); checkout.submit(); }
       form.addEventListener('submit', async event => {
         event.preventDefault(); if (!chosen) return;
         submit.disabled = true; message.textContent = 'Procesando tu solicitud…';
@@ -101,9 +150,7 @@ import '../styles/booking.css';
           const data = await response.json(); if (!response.ok) throw new Error(data.error || 'No se pudo reservar.');
           if (data.checkout) {
             message.textContent = 'Abriendo el pago seguro de Wompi…';
-            const checkout = document.createElement('form'); checkout.method = 'GET'; checkout.action = data.checkout.url;
-            Object.entries(data.checkout.fields).forEach(([name, value]) => { const input = document.createElement('input'); input.type = 'hidden'; input.name = name; input.value = String(value); checkout.append(input); });
-            document.body.append(checkout); checkout.submit(); return;
+            redirectToCheckout(data.checkout); return;
           }
           message.textContent = data.message; form.reset(); chosen = null; selected.textContent = 'Primero elige una clase disponible.'; await loadSessions();
         } catch (error) { message.textContent = error.message; submit.disabled = false; }
@@ -122,6 +169,19 @@ import '../styles/booking.css';
         } catch { message.textContent = 'No pudimos consultar el pago. Contacta al estudio para verificarlo.'; }
       }
       if (bookingId && /^[0-9a-f-]{36}$/.test(bookingId)) checkPaymentStatus();
+      const membershipList = document.querySelector('#membership-list');
+      const membershipForm = document.querySelector('#membership-form');
+      const membershipMessage = document.querySelector('#membership-message');
+      async function loadPlans() {
+        try { const response = await fetch('/api/plans', { cache: 'no-store' }); const data = await response.json(); if (!response.ok) throw new Error(data.error); membershipList.replaceChildren(); if (!data.plans.length) { membershipList.textContent = 'Aún no hay planes publicados. Escríbenos si quieres conocer las opciones actuales.'; return; }
+          data.plans.forEach(plan => { const card = document.createElement('article'); card.className = 'membership-card'; const title = document.createElement('h3'); title.textContent = plan.name; const desc = document.createElement('p'); desc.textContent = plan.description; const details = document.createElement('p'); details.textContent = `${plan.class_credits} clases · ${plan.validity_days} días de vigencia`; const price = document.createElement('strong'); price.textContent = `$${(plan.price_cents / 100).toFixed(2)}`; const button = document.createElement('button'); button.type = 'button'; button.textContent = 'Elegir membresía'; button.addEventListener('click', () => { chosenPlan = plan; document.querySelector('#selected-plan').textContent = `${plan.name} · $${(plan.price_cents / 100).toFixed(2)}`; membershipForm.hidden = false; membershipForm.scrollIntoView({ behavior: 'smooth', block: 'center' }); }); card.append(title, desc, details, price, button); membershipList.append(card); });
+        } catch { membershipList.textContent = 'No pudimos cargar las membresías ahora. Inténtalo de nuevo más tarde.'; }
+      }
+      membershipForm.addEventListener('submit', async event => { event.preventDefault(); if (!chosenPlan) return; const button = membershipForm.querySelector('button'); button.disabled = true; membershipMessage.textContent = 'Preparando pago seguro…'; try { const response = await fetch('/api/memberships', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...Object.fromEntries(new FormData(membershipForm)), planId: chosenPlan.id }) }); const data = await response.json(); if (!response.ok) throw new Error(data.error); redirectToCheckout(data.checkout); } catch (error) { membershipMessage.textContent = error.message; button.disabled = false; } });
+      const membershipId = new URLSearchParams(location.search).get('membresia');
+      async function checkMembership(attempt = 0) { try { const response = await fetch(`/api/membership-status/${membershipId}`, { cache: 'no-store' }); const data = await response.json(); if (data.status === 'active') { membershipForm.hidden = false; membershipMessage.textContent = '¡Pago confirmado! Tu membresía está activa. Revisa tu correo.'; return; } if (data.status === 'payment_failed') { membershipForm.hidden = false; membershipMessage.textContent = 'El pago no se completó. Contacta al estudio.'; return; } membershipForm.hidden = false; membershipMessage.textContent = 'Verificando el pago de tu membresía…'; if (attempt < 12) setTimeout(() => checkMembership(attempt + 1), 5000); else membershipMessage.textContent = 'La confirmación sigue pendiente. Contacta al estudio con tu referencia.'; } catch { membershipMessage.textContent = 'No pudimos verificar el pago. Contacta al estudio.'; } }
+      if (membershipId && /^[0-9a-f-]{36}$/.test(membershipId)) checkMembership();
+      loadPlans();
       loadSessions();
     </script>
   </body>

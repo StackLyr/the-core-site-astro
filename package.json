@@ -9,7 +9,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "booking:dev": "npm run build && wrangler pages dev dist",
-    "booking:db:init": "wrangler d1 execute core-booking --local --file=./db/schema.sql"
+    "booking:db:init": "wrangler d1 execute core-booking --local --file=./db/schema.sql",
+    "booking:db:upgrade": "wrangler d1 execute core-booking --local --file=./db/migrations/0002_memberships_email.sql"
   },
   "dependencies": {
     "astro": "^5.14.1"

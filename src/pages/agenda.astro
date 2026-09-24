@@ -46,6 +46,7 @@ import '../styles/booking.css';
                 <label>Duración en minutos<input name="durationMinutes" type="number" min="20" max="180" value="50" required /></label>
                 <label>Cupos<input name="capacity" type="number" min="1" max="40" required /></label>
                 <label>Precio en USD (vacío = consultar)<input name="price" type="number" min="0" max="10000" step="0.01" placeholder="Sin precio definido" /></label>
+                <label>Repetir cada semana<input name="repeatWeeks" type="number" min="1" max="8" value="1" required /></label>
                 <button type="submit">Crear clase</button>
                 <div class="booking-message" id="session-message" role="status"></div>
               </form>
@@ -67,6 +68,12 @@ import '../styles/booking.css';
               <div id="admin-list" class="admin-list" aria-live="polite"></div>
             </section>
           </div>
+          <section class="admin-section" aria-labelledby="calendar-heading"><h2 id="calendar-heading">Calendario de clases</h2><p>Publica una clase semanalmente desde el formulario. Cerrar una clase impide nuevas reservas, pero no cancela las existentes.</p><div id="admin-sessions" class="admin-stack"></div></section>
+          <section class="admin-section" aria-labelledby="plans-heading"><h2 id="plans-heading">Membresías</h2><div class="admin-layout">
+            <div class="admin-card"><form id="plan-form" class="admin-form"><label>Nombre del plan<input name="name" maxlength="80" required placeholder="Plan mensual" /></label><label>Descripción<input name="description" maxlength="250" /></label><label>Clases incluidas<input name="classCredits" type="number" min="1" max="100" required /></label><label>Vigencia (días)<input name="validityDays" type="number" min="1" max="365" required /></label><label>Precio total USD<input name="price" type="number" min="0.01" max="10000" step="0.01" required /></label><button type="submit">Publicar plan</button><div class="booking-message" id="plan-message" role="status"></div></form><p class="booking-note">Compra única, sin renovación automática. Necesita Wompi configurado.</p></div>
+            <div><h3>Planes publicados</h3><div id="admin-plans" class="admin-stack"></div></div>
+          </div><h3>Membresías de clientes</h3><div id="admin-memberships" class="admin-stack"></div></section>
+          <section class="admin-section" aria-labelledby="email-heading"><h2 id="email-heading">Correos de confirmación</h2><p>Los correos se envían con Resend cuando esté configurado. Los fallidos se pueden reintentar aquí.</p><div id="admin-emails" class="admin-stack"></div></section>
           <button id="logout-button" class="admin-action" type="button">Cerrar sesión</button>
         </div>
       </main>
@@ -79,15 +86,32 @@ import '../styles/booking.css';
       const sessionForm = document.querySelector('#session-form');
       const filter = document.querySelector('#booking-filter');
       const list = document.querySelector('#admin-list');
+      const adminSessions = document.querySelector('#admin-sessions');
+      const adminPlans = document.querySelector('#admin-plans');
+      const adminMemberships = document.querySelector('#admin-memberships');
+      const adminEmails = document.querySelector('#admin-emails');
       let bookings = [];
       const dateFormat = new Intl.DateTimeFormat('es-PA', { timeZone: 'America/Panama', dateStyle: 'medium', timeStyle: 'short' });
       const labels = { requested: 'Por confirmar', pending_payment: 'Pago pendiente', confirmed: 'Confirmada', cancelled: 'Cancelada', no_show: 'No asistió', payment_failed: 'Pago rechazado', review: 'Revisión manual' };
       function statusLabel(value) { return labels[value] || value; }
-      function showAdmin(authenticated) { loginSection.hidden = authenticated; content.hidden = !authenticated; if (authenticated) loadBookings(); }
+      function showAdmin(authenticated) { loginSection.hidden = authenticated; content.hidden = !authenticated; if (authenticated) { loadBookings(); loadDashboard(); } }
       async function requestJson(url, options = {}) { const response = await fetch(url, { cache: 'no-store', ...options }); const data = await response.json(); if (!response.ok) throw new Error(data.error || 'Error de conexión.'); return data; }
       async function loadBookings() {
         try { const data = await requestJson('/api/bookings'); bookings = data.bookings; renderBookings(); }
         catch (error) { list.textContent = error.message; }
+      }
+      function row(parent, title, detail, actionText, action) { const article = document.createElement('article'); article.className = 'admin-row'; const info = document.createElement('div'); const strong = document.createElement('strong'); strong.textContent = title; const small = document.createElement('small'); small.textContent = detail; info.append(strong, small); article.append(info); if (actionText) { const button = document.createElement('button'); button.type = 'button'; button.textContent = actionText; button.addEventListener('click', async () => { button.disabled = true; try { await action(); await loadDashboard(); } catch (error) { alert(error.message); button.disabled = false; } }); article.append(button); } parent.append(article); }
+      async function loadDashboard() {
+        try { const data = await requestJson('/api/admin/dashboard'); adminSessions.replaceChildren(); adminPlans.replaceChildren(); adminMemberships.replaceChildren(); adminEmails.replaceChildren();
+          if (!data.sessions.length) adminSessions.textContent = 'Aún no hay clases.';
+          data.sessions.forEach(session => row(adminSessions, `${session.class_name} · ${dateFormat.format(new Date(session.starts_at))}`, `${session.occupied}/${session.capacity} lugares · ${session.state === 'open' ? 'Abierta' : 'Cerrada'} · ${session.price_cents === null ? 'Precio por consultar' : `$${(session.price_cents / 100).toFixed(2)}`}`, session.state === 'open' ? 'Cerrar' : 'Reabrir', () => requestJson(`/api/admin/sessions/${session.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ state: session.state === 'open' ? 'closed' : 'open' }) })));
+          if (!data.plans.length) adminPlans.textContent = 'Aún no hay planes.';
+          data.plans.forEach(plan => row(adminPlans, plan.name, `${plan.class_credits} clases · ${plan.validity_days} días · $${(plan.price_cents / 100).toFixed(2)} · ${plan.active ? 'Publicado' : 'Oculto'}`, plan.active ? 'Ocultar' : 'Publicar', () => requestJson(`/api/admin/plans/${plan.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ active: !plan.active }) })));
+          if (!data.memberships.length) adminMemberships.textContent = 'Todavía no hay compras de membresías.';
+          data.memberships.forEach(item => row(adminMemberships, `${item.name} · ${item.plan_name}`, `${item.email} · ${item.status} · ${item.credits_remaining}/${item.class_credits} clases · vence ${item.expires_at ? dateFormat.format(new Date(item.expires_at)) : 'pendiente'}`, null, null));
+          if (!data.emails.length) adminEmails.textContent = 'Aún no hay correos.';
+          data.emails.forEach(item => row(adminEmails, `${item.subject} · ${item.status}`, `${item.to_email} · ${item.last_error || `${item.attempts} intento(s)`}`, item.status === 'sent' ? null : 'Reintentar', () => requestJson(`/api/admin/emails/${item.id}`, { method: 'POST' })));
+        } catch (error) { adminSessions.textContent = error.message; }
       }
       function renderBookings() {
         const selected = filter.value;
@@ -132,9 +156,10 @@ import '../styles/booking.css';
         const fields = Object.fromEntries(new FormData(sessionForm));
         const startsAt = new Date(`${fields.startsAt}-05:00`).toISOString();
         const priceCents = fields.price === '' ? null : Math.round(Number(fields.price) * 100);
-        try { await requestJson('/api/sessions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ className: fields.className, startsAt, durationMinutes: Number(fields.durationMinutes), capacity: Number(fields.capacity), priceCents }) }); message.textContent = 'Clase publicada en la agenda.'; sessionForm.reset(); }
+        try { await requestJson('/api/sessions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ className: fields.className, startsAt, durationMinutes: Number(fields.durationMinutes), capacity: Number(fields.capacity), priceCents, repeatWeeks: Number(fields.repeatWeeks) }) }); message.textContent = 'Clase publicada en la agenda.'; sessionForm.reset(); await loadDashboard(); }
         catch (error) { message.textContent = error.message; }
       });
+      document.querySelector('#plan-form').addEventListener('submit', async event => { event.preventDefault(); const form = event.currentTarget; const message = document.querySelector('#plan-message'); const fields = Object.fromEntries(new FormData(form)); message.textContent = 'Publicando…'; try { await requestJson('/api/plans', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: fields.name, description: fields.description, classCredits: Number(fields.classCredits), validityDays: Number(fields.validityDays), priceCents: Math.round(Number(fields.price) * 100) }) }); message.textContent = 'Membresía publicada.'; form.reset(); await loadDashboard(); } catch (error) { message.textContent = error.message; } });
       filter.addEventListener('change', renderBookings);
       document.querySelector('#logout-button').addEventListener('click', async () => { await requestJson('/api/admin/logout', { method: 'POST' }); showAdmin(false); });
       requestJson('/api/admin/me').then(data => showAdmin(data.authenticated)).catch(() => showAdmin(false));

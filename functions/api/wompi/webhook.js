@@ -1,10 +1,31 @@
 import { bodyJson, json, sameValue, sha256Hex } from '../../../lib/booking.js';
+import { classDate, queueEmail, sendQueuedEmail } from '../../../lib/email.js';
 
 function propertyValue(data, path) {
   return path.split('.').reduce((value, key) => value?.[key], data);
 }
 
-export async function onRequestPost({ request, env }) {
+async function notifyBooking(env, bookingId, waitUntil) {
+  try {
+    const row = await env.DB.prepare('SELECT c.name, c.email, s.class_name, s.starts_at FROM bookings b JOIN clients c ON c.id = b.client_id JOIN sessions s ON s.id = b.session_id WHERE b.id = ?').bind(bookingId).first();
+    if (!row) return;
+    const key = `booking-confirmed/${bookingId}`;
+    await queueEmail(env, { key, to: row.email, subject: 'Tu clase está confirmada — The Core Site', text: `Hola ${row.name},\n\nTu reserva para ${row.class_name} quedó confirmada para el ${classDate(row.starts_at)} (hora de Panamá).\n\nTe esperamos en The Core Site, Plaza JBC, David.\n\nThe Core Site` });
+    waitUntil(sendQueuedEmail(env, key));
+  } catch { /* El pago no se revierte si falla el correo; queda visible para revisión. */ }
+}
+
+async function notifyMembership(env, membershipId, waitUntil) {
+  try {
+    const row = await env.DB.prepare('SELECT c.name, c.email, p.name AS plan_name, m.class_credits, m.expires_at FROM memberships m JOIN clients c ON c.id = m.client_id JOIN membership_plans p ON p.id = m.plan_id WHERE m.id = ?').bind(membershipId).first();
+    if (!row) return;
+    const key = `membership-active/${membershipId}`;
+    await queueEmail(env, { key, to: row.email, subject: 'Tu membresía está activa — The Core Site', text: `Hola ${row.name},\n\nTu membresía ${row.plan_name} está activa e incluye ${row.class_credits} clases. Vigencia hasta el ${classDate(row.expires_at)}.\n\nPara utilizar tus clases, contacta al estudio y menciona este número de membresía: ${membershipId}.\n\nThe Core Site` });
+    waitUntil(sendQueuedEmail(env, key));
+  } catch { /* El panel muestra los correos pendientes. */ }
+}
+
+export async function onRequestPost({ request, env, waitUntil }) {
   if (!env.DB || !env.WOMPI_EVENTS_SECRET || !['test', 'prod'].includes(env.WOMPI_ENV)) return json({ error: 'Webhook no configurado.' }, 503);
   try {
     const event = await bodyJson(request);
@@ -19,9 +40,26 @@ export async function onRequestPost({ request, env }) {
     const transaction = event.data?.transaction;
     if (!transaction?.id || !transaction?.reference || transaction.currency !== 'USD' || !Number.isInteger(transaction.amount_in_cents)) return json({ error: 'Transacción inválida.' }, 400);
     const booking = await env.DB.prepare('SELECT id, status, amount_cents, wompi_transaction_id FROM bookings WHERE payment_reference = ?').bind(transaction.reference).first();
-    if (!booking || booking.amount_cents !== transaction.amount_in_cents) return json({ error: 'Referencia o importe no coincide.' }, 409);
+    if (!booking) {
+      const membership = await env.DB.prepare('SELECT m.id, m.status, m.amount_cents, m.wompi_transaction_id, p.validity_days FROM memberships m JOIN membership_plans p ON p.id = m.plan_id WHERE m.payment_reference = ?').bind(transaction.reference).first();
+      if (!membership || membership.amount_cents !== transaction.amount_in_cents) return json({ error: 'Referencia o importe no coincide.' }, 409);
+      if (membership.wompi_transaction_id && membership.wompi_transaction_id !== transaction.id) return json({ error: 'Transacción duplicada.' }, 409);
+      if (membership.status === 'active' && membership.wompi_transaction_id === transaction.id) { await notifyMembership(env, membership.id, waitUntil); return json({ ok: true }); }
+      if (transaction.status === 'APPROVED') {
+        const now = new Date();
+        const expires = new Date(now.getTime() + membership.validity_days * 86400000).toISOString();
+        const result = await env.DB.prepare("UPDATE memberships SET status = 'active', credits_remaining = class_credits, purchased_at = ?, expires_at = ?, wompi_transaction_id = ? WHERE id = ? AND status = 'pending_payment'")
+          .bind(now.toISOString(), expires, transaction.id, membership.id).run();
+        if (result.meta.changes !== 1) return json({ error: 'Membresía requiere revisión.' }, 409);
+        await notifyMembership(env, membership.id, waitUntil);
+      } else if (['DECLINED', 'VOIDED', 'ERROR'].includes(transaction.status) && membership.status === 'pending_payment') {
+        await env.DB.prepare("UPDATE memberships SET status = 'payment_failed', wompi_transaction_id = ? WHERE id = ? AND status = 'pending_payment'").bind(transaction.id, membership.id).run();
+      }
+      return json({ ok: true });
+    }
+    if (booking.amount_cents !== transaction.amount_in_cents) return json({ error: 'Referencia o importe no coincide.' }, 409);
     if (booking.wompi_transaction_id && booking.wompi_transaction_id !== transaction.id) return json({ error: 'Transacción duplicada.' }, 409);
-    if (booking.status === 'confirmed' && booking.wompi_transaction_id === transaction.id) return json({ ok: true });
+    if (booking.status === 'confirmed' && booking.wompi_transaction_id === transaction.id) { await notifyBooking(env, booking.id, waitUntil); return json({ ok: true }); }
     if (transaction.status === 'APPROVED') {
       const result = await env.DB.prepare(`UPDATE bookings SET status = 'confirmed', wompi_transaction_id = ?
         WHERE id = ? AND status = 'pending_payment' AND
@@ -34,6 +72,7 @@ export async function onRequestPost({ request, env }) {
         await env.DB.prepare('INSERT INTO booking_events (id, booking_id, event_type, detail) VALUES (?, ?, ?, ?)').bind(crypto.randomUUID(), booking.id, 'review', 'Pago aprobado: revisar cupo o cancelación').run();
       } else {
         await env.DB.prepare('INSERT INTO booking_events (id, booking_id, event_type, detail) VALUES (?, ?, ?, ?)').bind(crypto.randomUUID(), booking.id, 'confirmed', 'Wompi').run();
+        await notifyBooking(env, booking.id, waitUntil);
       }
     } else if (['DECLINED', 'VOIDED', 'ERROR'].includes(transaction.status) && booking.status === 'pending_payment') {
       await env.DB.prepare("UPDATE bookings SET status = 'payment_failed', wompi_transaction_id = ? WHERE id = ? AND status = 'pending_payment'").bind(transaction.id, booking.id).run();
