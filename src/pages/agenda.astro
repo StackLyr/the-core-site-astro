@@ -1,0 +1,168 @@
+---
+import '../styles/global.css';
+import '../styles/booking.css';
+---
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Agenda privada — The Core Site</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body class="booking-app admin-app">
+    <div class="booking-shell">
+      <header class="booking-header">
+        <a href="/" aria-label="Volver a The Core Site"><img src="/core-logo.png" alt="The Core Site" width="720" height="304" /></a>
+        <a href="/reservar">Ver reservas públicas</a>
+      </header>
+      <main>
+        <div class="booking-hero">
+          <p class="booking-eyebrow">Panel privado · The Core Site</p>
+          <h1>Tu agenda,<br />en orden.</h1>
+          <p>Horarios, cupos y personas en un solo lugar. Los pagos de esta versión son simulaciones claramente marcadas y nunca realizan cargos reales.</p>
+        </div>
+        <section id="admin-login" class="admin-card" style="max-width:440px" aria-labelledby="login-heading">
+          <h2 id="login-heading">Acceso del estudio</h2>
+          <form id="login-form" class="admin-form">
+            <label>Contraseña<input name="password" type="password" autocomplete="current-password" required /></label>
+            <button type="submit">Entrar</button>
+            <div class="booking-message" id="login-message" role="status"></div>
+          </form>
+        </section>
+        <div id="admin-content" hidden>
+          <div class="admin-summary">
+            <article><strong id="count-upcoming">0</strong><span>Próximas reservas</span></article>
+            <article><strong id="count-cancelled">0</strong><span>Cancelaciones</span></article>
+            <article><strong id="count-review">0</strong><span>Por revisar</span></article>
+          </div>
+          <div class="admin-layout">
+            <section class="admin-card" aria-labelledby="new-session-heading">
+              <h2 id="new-session-heading">Publicar una clase</h2>
+              <form id="session-form" class="admin-form">
+                <label>Nombre de la clase<input name="className" required maxlength="80" placeholder="Reformer Base" /></label>
+                <label>Inicio · hora de Panamá<input name="startsAt" type="datetime-local" required /></label>
+                <label>Duración en minutos<input name="durationMinutes" type="number" min="20" max="180" value="50" required /></label>
+                <label>Cupos<input name="capacity" type="number" min="1" max="40" required /></label>
+                <label>Precio en USD (vacío = consultar)<input name="price" type="number" min="0" max="10000" step="0.01" placeholder="Sin precio definido" /></label>
+                <label>Repetir cada semana<input name="repeatWeeks" type="number" min="1" max="8" value="1" required /></label>
+                <button type="submit">Crear clase</button>
+                <div class="booking-message" id="session-message" role="status"></div>
+              </form>
+              <p class="booking-note">Si el precio queda vacío, la reserva entra como solicitud. Un precio mayor que cero abre el simulador de pago.</p>
+            </section>
+            <section class="admin-bookings" aria-labelledby="bookings-heading">
+              <div class="admin-toolbar">
+                <h2 id="bookings-heading">Clientes y reservas</h2>
+                <select id="booking-filter" aria-label="Filtrar reservas">
+                  <option value="all">Todas</option>
+                  <option value="requested">Solicitudes</option>
+                  <option value="pending_payment">Pagos pendientes</option>
+                  <option value="confirmed">Confirmadas</option>
+                  <option value="cancelled">Canceladas</option>
+                  <option value="no_show">Ausencias</option>
+                  <option value="review">Por revisar</option>
+                </select>
+              </div>
+              <div id="admin-list" class="admin-list" aria-live="polite"></div>
+            </section>
+          </div>
+          <section class="admin-section" aria-labelledby="calendar-heading"><h2 id="calendar-heading">Calendario de clases</h2><p>Publica una clase semanalmente desde el formulario. Cerrar una clase impide nuevas reservas, pero no cancela las existentes.</p><div id="admin-sessions" class="admin-stack"></div></section>
+          <section class="admin-section" aria-labelledby="plans-heading"><h2 id="plans-heading">Membresías</h2><div class="admin-layout">
+            <div class="admin-card"><form id="plan-form" class="admin-form"><label>Nombre del plan<input name="name" maxlength="80" required placeholder="Plan mensual" /></label><label>Descripción<input name="description" maxlength="250" /></label><label>Clases incluidas<input name="classCredits" type="number" min="1" max="100" required /></label><label>Vigencia (días)<input name="validityDays" type="number" min="1" max="365" required /></label><label>Precio total USD<input name="price" type="number" min="0.01" max="10000" step="0.01" required /></label><button type="submit">Publicar plan</button><div class="booking-message" id="plan-message" role="status"></div></form><p class="booking-note">Compra ficticia, sin renovación automática ni cobro real.</p></div>
+            <div><h3>Planes publicados</h3><div id="admin-plans" class="admin-stack"></div></div>
+          </div><h3>Membresías de clientes</h3><div id="admin-memberships" class="admin-stack"></div></section>
+          <section class="admin-section" aria-labelledby="email-heading"><h2 id="email-heading">Correos de confirmación</h2><p>Los correos se envían con Resend cuando esté configurado. Los fallidos se pueden reintentar aquí.</p><div id="admin-emails" class="admin-stack"></div></section>
+          <button id="logout-button" class="admin-action" type="button">Cerrar sesión</button>
+        </div>
+      </main>
+      <footer class="booking-footer">Demostración local · Pagos ficticios · No procesa tarjetas ni cobros reales</footer>
+    </div>
+    <script>
+      const loginSection = document.querySelector('#admin-login');
+      const content = document.querySelector('#admin-content');
+      const loginForm = document.querySelector('#login-form');
+      const sessionForm = document.querySelector('#session-form');
+      const filter = document.querySelector('#booking-filter');
+      const list = document.querySelector('#admin-list');
+      const adminSessions = document.querySelector('#admin-sessions');
+      const adminPlans = document.querySelector('#admin-plans');
+      const adminMemberships = document.querySelector('#admin-memberships');
+      const adminEmails = document.querySelector('#admin-emails');
+      let bookings = [];
+      const dateFormat = new Intl.DateTimeFormat('es-PA', { timeZone: 'America/Panama', dateStyle: 'medium', timeStyle: 'short' });
+      const labels = { requested: 'Por confirmar', pending_payment: 'Pago pendiente', confirmed: 'Confirmada', cancelled: 'Cancelada', no_show: 'No asistió', payment_failed: 'Pago rechazado', review: 'Revisión manual' };
+      function statusLabel(value) { return labels[value] || value; }
+      function showAdmin(authenticated) { loginSection.hidden = authenticated; content.hidden = !authenticated; if (authenticated) { loadBookings(); loadDashboard(); } }
+      async function requestJson(url, options = {}) { const response = await fetch(url, { cache: 'no-store', ...options }); const data = await response.json(); if (!response.ok) throw new Error(data.error || 'Error de conexión.'); return data; }
+      async function loadBookings() {
+        try { const data = await requestJson('/api/bookings'); bookings = data.bookings; renderBookings(); }
+        catch (error) { list.textContent = error.message; }
+      }
+      function row(parent, title, detail, actionText, action) { const article = document.createElement('article'); article.className = 'admin-row'; const info = document.createElement('div'); const strong = document.createElement('strong'); strong.textContent = title; const small = document.createElement('small'); small.textContent = detail; info.append(strong, small); article.append(info); if (actionText) { const button = document.createElement('button'); button.type = 'button'; button.textContent = actionText; button.addEventListener('click', async () => { button.disabled = true; try { await action(); await loadDashboard(); } catch (error) { alert(error.message); button.disabled = false; } }); article.append(button); } parent.append(article); }
+      async function loadDashboard() {
+        try { const data = await requestJson('/api/admin/dashboard'); adminSessions.replaceChildren(); adminPlans.replaceChildren(); adminMemberships.replaceChildren(); adminEmails.replaceChildren();
+          if (!data.sessions.length) adminSessions.textContent = 'Aún no hay clases.';
+          data.sessions.forEach(session => row(adminSessions, `${session.class_name} · ${dateFormat.format(new Date(session.starts_at))}`, `${session.occupied}/${session.capacity} lugares · ${session.state === 'open' ? 'Abierta' : 'Cerrada'} · ${session.price_cents === null ? 'Precio por consultar' : `$${(session.price_cents / 100).toFixed(2)}`}`, session.state === 'open' ? 'Cerrar' : 'Reabrir', () => requestJson(`/api/admin/sessions/${session.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ state: session.state === 'open' ? 'closed' : 'open' }) })));
+          if (!data.plans.length) adminPlans.textContent = 'Aún no hay planes.';
+          data.plans.forEach(plan => row(adminPlans, plan.name, `${plan.class_credits} clases · ${plan.validity_days} días · $${(plan.price_cents / 100).toFixed(2)} · ${plan.active ? 'Publicado' : 'Oculto'}`, plan.active ? 'Ocultar' : 'Publicar', () => requestJson(`/api/admin/plans/${plan.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ active: !plan.active }) })));
+          if (!data.memberships.length) adminMemberships.textContent = 'Todavía no hay compras de membresías.';
+          data.memberships.forEach(item => row(adminMemberships, `${item.name} · ${item.plan_name}`, `${item.email} · ${item.status} · ${item.credits_remaining}/${item.class_credits} clases · vence ${item.expires_at ? dateFormat.format(new Date(item.expires_at)) : 'pendiente'}`, null, null));
+          if (!data.emails.length) adminEmails.textContent = 'Aún no hay correos.';
+          data.emails.forEach(item => row(adminEmails, `${item.subject} · ${item.status}`, `${item.to_email} · ${item.last_error || `${item.attempts} intento(s)`}`, item.status === 'sent' ? null : 'Reintentar', () => requestJson(`/api/admin/emails/${item.id}`, { method: 'POST' })));
+        } catch (error) { adminSessions.textContent = error.message; }
+      }
+      function renderBookings() {
+        const selected = filter.value;
+        const shown = selected === 'all' ? bookings : bookings.filter(booking => booking.status === selected);
+        document.querySelector('#count-upcoming').textContent = String(bookings.filter(booking => booking.status === 'confirmed' || booking.status === 'requested').length);
+        document.querySelector('#count-cancelled').textContent = String(bookings.filter(booking => booking.status === 'cancelled').length);
+        document.querySelector('#count-review').textContent = String(bookings.filter(booking => booking.status === 'review' || booking.status === 'payment_failed').length);
+        list.replaceChildren();
+        if (!shown.length) { const empty = document.createElement('div'); empty.className = 'booking-empty'; empty.textContent = 'No hay reservas en este filtro.'; list.append(empty); return; }
+        shown.forEach(booking => {
+          const article = document.createElement('article'); article.className = 'admin-booking';
+          const info = document.createElement('div');
+          const title = document.createElement('strong'); title.textContent = booking.name;
+          const badge = document.createElement('span'); badge.className = 'admin-status'; badge.textContent = statusLabel(booking.status);
+          const detail = document.createElement('small'); detail.textContent = `${booking.class_name} · ${dateFormat.format(new Date(booking.starts_at))}`;
+          const contact = document.createElement('small'); contact.textContent = `${booking.email} · ${booking.phone}`;
+          info.append(title, badge, detail, contact);
+          const actions = document.createElement('div'); actions.className = 'admin-booking-actions';
+          if (booking.status === 'requested') actions.append(actionButton('Confirmar', booking, 'confirmed'));
+          if (booking.status === 'confirmed') actions.append(actionButton('No asistió', booking, 'no_show'));
+          if (['requested', 'pending_payment', 'confirmed'].includes(booking.status)) actions.append(actionButton('Cancelar', booking, 'cancelled'));
+          article.append(info, actions); list.append(article);
+        });
+      }
+      function actionButton(text, booking, status) {
+        const button = document.createElement('button'); button.type = 'button'; button.textContent = text;
+        button.addEventListener('click', async () => {
+          if (status === 'cancelled' && !window.confirm(`¿Cancelar la reserva de ${booking.name}? No se hará un reembolso automático.`)) return;
+          button.disabled = true;
+          try { await requestJson(`/api/admin/bookings/${booking.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) }); await loadBookings(); }
+          catch (error) { window.alert(error.message); button.disabled = false; }
+        });
+        return button;
+      }
+      loginForm.addEventListener('submit', async event => {
+        event.preventDefault(); const message = document.querySelector('#login-message'); message.textContent = 'Verificando…';
+        try { await requestJson('/api/admin/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: new FormData(loginForm).get('password') }) }); loginForm.reset(); message.textContent = ''; showAdmin(true); }
+        catch (error) { message.textContent = error.message; }
+      });
+      sessionForm.addEventListener('submit', async event => {
+        event.preventDefault(); const message = document.querySelector('#session-message'); message.textContent = 'Creando…';
+        const fields = Object.fromEntries(new FormData(sessionForm));
+        const startsAt = new Date(`${fields.startsAt}-05:00`).toISOString();
+        const priceCents = fields.price === '' ? null : Math.round(Number(fields.price) * 100);
+        try { await requestJson('/api/sessions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ className: fields.className, startsAt, durationMinutes: Number(fields.durationMinutes), capacity: Number(fields.capacity), priceCents, repeatWeeks: Number(fields.repeatWeeks) }) }); message.textContent = 'Clase publicada en la agenda.'; sessionForm.reset(); await loadDashboard(); }
+        catch (error) { message.textContent = error.message; }
+      });
+      document.querySelector('#plan-form').addEventListener('submit', async event => { event.preventDefault(); const form = event.currentTarget; const message = document.querySelector('#plan-message'); const fields = Object.fromEntries(new FormData(form)); message.textContent = 'Publicando…'; try { await requestJson('/api/plans', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: fields.name, description: fields.description, classCredits: Number(fields.classCredits), validityDays: Number(fields.validityDays), priceCents: Math.round(Number(fields.price) * 100) }) }); message.textContent = 'Membresía publicada.'; form.reset(); await loadDashboard(); } catch (error) { message.textContent = error.message; } });
+      filter.addEventListener('change', renderBookings);
+      document.querySelector('#logout-button').addEventListener('click', async () => { await requestJson('/api/admin/logout', { method: 'POST' }); showAdmin(false); });
+      requestJson('/api/admin/me').then(data => showAdmin(data.authenticated)).catch(() => showAdmin(false));
+    </script>
+  </body>
+</html>

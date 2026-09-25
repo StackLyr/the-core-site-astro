@@ -1,0 +1,15 @@
+{
+  "name": "the-core-site-astro",
+  "pages_build_output_dir": "./dist",
+  "compatibility_date": "2026-09-01",
+  "vars": {
+    "PAYMENT_MODE": "demo"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "core-booking",
+      "database_id": "7eeb527c-518d-42f6-98d4-7b10089eb8eb"
+    }
+  ]
+}

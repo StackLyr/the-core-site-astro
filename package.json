@@ -6,13 +6,21 @@
   "scripts": {
     "install:ci": "npm ci --include=dev --no-audit --no-fund",
     "dev": "astro dev",
+    "test": "node --test",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "booking:dev": "npm run build && wrangler pages dev dist",
+    "booking:db:init": "wrangler d1 execute core-booking --local --file=./db/schema.sql",
+    "booking:db:seed": "wrangler d1 execute core-booking --local --file=./db/demo-seed.sql",
+    "booking:db:upgrade": "wrangler d1 execute core-booking --local --file=./db/migrations/0002_memberships_email.sql",
+    "booking:db:security": "wrangler d1 execute core-booking --local --file=./db/migrations/0003_admin_security.sql",
+    "booking:db:limits": "wrangler d1 execute core-booking --local --file=./db/migrations/0004_public_limits.sql"
   },
   "dependencies": {
-    "astro": "^5.14.1"
+    "astro": "7.3.5"
   },
   "devDependencies": {
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.2",
+    "wrangler": "^4.139.0"
   }
 }

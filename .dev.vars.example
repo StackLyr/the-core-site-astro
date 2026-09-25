@@ -1,0 +1,5 @@
+ADMIN_PASSWORD=replace-with-a-long-unique-password
+ADMIN_SESSION_SECRET=replace-with-at-least-32-random-characters
+PAYMENT_MODE=demo
+RESEND_API_KEY=
+EMAIL_FROM=The Core Site <reservas@example.com>

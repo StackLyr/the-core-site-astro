@@ -1,0 +1,76 @@
+---
+import '../styles/global.css';
+import '../styles/booking.css';
+---
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Simulador de pago — The Core Site</title>
+    <meta name="description" content="Pantalla ficticia para demostrar el flujo de reservas de The Core Site." />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body class="booking-app demo-payment-app">
+    <div class="booking-shell demo-payment-shell">
+      <header class="booking-header">
+        <a href="/" aria-label="Volver a The Core Site"><img src="/core-logo.png" alt="The Core Site" width="720" height="304" /></a>
+        <a href="/reservar/">Cancelar y volver</a>
+      </header>
+      <main class="demo-payment-main">
+        <section class="demo-payment-card" aria-labelledby="demo-title">
+          <div class="demo-badge">Demo · Sin cobro real</div>
+          <p class="booking-eyebrow">Simulador de pago</p>
+          <h1 id="demo-title">Prueba el flujo completo.</h1>
+          <p>Esta pantalla no está conectada a un banco, no solicita tarjeta y no mueve dinero. Elige un resultado para mostrar cómo responderían la reserva y el panel del estudio.</p>
+          <dl class="demo-payment-summary">
+            <div><dt>Operación</dt><dd id="demo-kind">Cargando…</dd></div>
+            <div><dt>Estado</dt><dd id="demo-state">Pendiente de simulación</dd></div>
+          </dl>
+          <div class="demo-payment-actions">
+            <button type="button" data-outcome="approved">Simular pago aprobado</button>
+            <button type="button" class="demo-secondary" data-outcome="declined">Simular pago rechazado</button>
+          </div>
+          <div class="booking-message" id="demo-message" role="status" aria-live="polite"></div>
+          <small>Solo para demostración comercial. En una implementación real, el resultado debe llegar desde el webhook firmado del proveedor de pagos.</small>
+        </section>
+      </main>
+      <footer class="booking-footer">The Core Site · Simulador seguro · No introduzcas información de tarjeta</footer>
+    </div>
+    <script>
+      const params = new URLSearchParams(location.search);
+      const kind = params.get('tipo');
+      const id = params.get('id');
+      const token = params.get('token');
+      const validId = /^[0-9a-f-]{36}$/i.test(id || '');
+      const validToken = /^demo-(class|plan)-[0-9a-f-]{36}$/i.test(token || '');
+      const buttons = document.querySelectorAll('[data-outcome]');
+      const message = document.querySelector('#demo-message');
+      const state = document.querySelector('#demo-state');
+      document.querySelector('#demo-kind').textContent = kind === 'booking' ? 'Reserva de clase' : kind === 'membership' ? 'Compra de membresía' : 'No identificada';
+      if (!['booking', 'membership'].includes(kind) || !validId || !validToken) {
+        buttons.forEach(button => button.disabled = true);
+        message.textContent = 'Este enlace demo no es válido. Regresa a reservas e inicia nuevamente.';
+      }
+      buttons.forEach(button => button.addEventListener('click', async () => {
+        buttons.forEach(item => item.disabled = true);
+        message.textContent = 'Aplicando el resultado ficticio…';
+        try {
+          const response = await fetch('/api/demo-payment', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ kind, id, token, outcome: button.dataset.outcome }) });
+          const data = await response.json();
+          if (!response.ok) throw new Error(data.error || 'No se pudo completar la simulación.');
+          const approved = data.status === 'confirmed' || data.status === 'active';
+          state.textContent = approved ? 'Pago demo aprobado' : 'Pago demo rechazado';
+          message.textContent = approved ? 'Listo. El panel del estudio ya refleja la confirmación.' : 'Listo. El panel del estudio mostrará el intento rechazado.';
+          history.replaceState({}, '', '/pago-demo/');
+          const target = kind === 'booking' ? `/reservar/?reserva=${encodeURIComponent(id)}` : `/reservar/?membresia=${encodeURIComponent(id)}#membresias`;
+          const link = document.createElement('a'); link.className = 'demo-result-link'; link.href = target; link.textContent = 'Ver resultado de la reserva'; message.append(document.createElement('br'), link);
+        } catch (error) {
+          message.textContent = error.message;
+          buttons.forEach(item => item.disabled = false);
+        }
+      }));
+    </script>
+  </body>
+</html>
