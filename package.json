@@ -11,6 +11,7 @@
     "preview": "astro preview",
     "booking:dev": "npm run build && wrangler pages dev dist",
     "booking:db:init": "wrangler d1 execute core-booking --local --file=./db/schema.sql",
+    "booking:db:seed": "wrangler d1 execute core-booking --local --file=./db/demo-seed.sql",
     "booking:db:upgrade": "wrangler d1 execute core-booking --local --file=./db/migrations/0002_memberships_email.sql",
     "booking:db:security": "wrangler d1 execute core-booking --local --file=./db/migrations/0003_admin_security.sql",
     "booking:db:limits": "wrangler d1 execute core-booking --local --file=./db/migrations/0004_public_limits.sql"

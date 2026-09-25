@@ -22,11 +22,11 @@ import '../styles/booking.css';
         <div class="booking-hero">
           <p class="booking-eyebrow">La agenda · The Core Site</p>
           <h1>Tu espacio<br />te espera.</h1>
-          <p>Elige el momento que mejor se adapte a ti. Tu lugar quedará confirmado cuando el estudio confirme la solicitud o Wompi confirme el pago.</p>
+          <p>Elige el momento que mejor se adapte a ti. En esta demostración puedes recorrer la reserva completa y simular el resultado del pago sin usar una tarjeta.</p>
         </div>
         <section class="booking-steps" aria-labelledby="steps-heading">
           <h2 id="steps-heading">Así de sencillo</h2>
-          <ol><li><strong>01 · Explora la semana</strong><span>Consulta las próximas clases y los cupos disponibles.</span></li><li><strong>02 · Elige tu lugar</strong><span>Deja tus datos para solicitar la reserva o continuar al pago.</span></li><li><strong>03 · Espera la confirmación</strong><span>Recibirás un correo cuando el estudio confirme la clase o se apruebe el pago.</span></li></ol>
+          <ol><li><strong>01 · Explora la semana</strong><span>Consulta las próximas clases y los cupos disponibles.</span></li><li><strong>02 · Elige tu lugar</strong><span>Deja tus datos para solicitar la reserva.</span></li><li><strong>03 · Simula el pago</strong><span>Aprueba o rechaza el pago ficticio y revisa el resultado en la agenda.</span></li></ol>
         </section>
         <div class="booking-grid">
           <section class="booking-panel" aria-labelledby="available-heading">
@@ -43,20 +43,20 @@ import '../styles/booking.css';
               <label>Teléfono<input name="phone" type="tel" autocomplete="tel" required minlength="7" maxlength="35" /></label>
               <button type="submit" disabled>Solicitar mi lugar</button>
               <div class="booking-message" id="booking-message" role="status" aria-live="polite"></div>
-              <small class="booking-note">Si la clase tiene precio publicado, continuarás al pago seguro de Wompi. No guardamos los datos de tu tarjeta.</small>
+              <small class="booking-note"><strong>Modo demo:</strong> si la clase tiene precio, abrirás un simulador. No solicita tarjeta ni realiza cobros.</small>
             </form>
           </section>
         </div>
         <section class="membership-section" id="membresias" aria-labelledby="memberships-heading">
           <p class="booking-eyebrow">Tu práctica, a tu ritmo</p><h2 id="memberships-heading">Membresías</h2>
-          <p>Planes de clases con vigencia clara y pago seguro. Publicaremos aquí las opciones disponibles del estudio.</p>
+          <p>Planes de clases con vigencia clara. En esta versión puedes simular la compra completa sin realizar un cobro.</p>
           <div id="membership-list" class="membership-list" aria-live="polite"></div>
           <form id="membership-form" class="booking-form membership-form" hidden>
             <strong id="selected-plan"></strong>
             <label>Nombre completo<input name="name" autocomplete="name" required minlength="2" maxlength="100" /></label>
             <label>Correo electrónico<input name="email" type="email" autocomplete="email" required maxlength="254" /></label>
             <label>Teléfono<input name="phone" type="tel" autocomplete="tel" required minlength="7" maxlength="35" /></label>
-            <button type="submit">Continuar a Wompi</button><div class="booking-message" id="membership-message" role="status"></div>
+            <button type="submit">Continuar al pago demo</button><div class="booking-message" id="membership-message" role="status"></div>
             <small>No es una suscripción automática: cada membresía se compra por separado. El estudio te ayudará a usar tus clases.</small>
           </form>
         </section>
@@ -140,7 +140,7 @@ import '../styles/booking.css';
       }
       document.querySelector('#week-prev').addEventListener('click', () => { weekOffset = Math.max(0, weekOffset - 1); renderSchedule(); });
       document.querySelector('#week-next').addEventListener('click', () => { weekOffset = Math.min(7, weekOffset + 1); renderSchedule(); });
-      function redirectToCheckout(checkoutData) { const checkout = document.createElement('form'); checkout.method = 'GET'; checkout.action = checkoutData.url; Object.entries(checkoutData.fields).forEach(([name, value]) => { const input = document.createElement('input'); input.type = 'hidden'; input.name = name; input.value = String(value); checkout.append(input); }); document.body.append(checkout); checkout.submit(); }
+      function redirectToCheckout(checkoutData) { if (!checkoutData?.demo || !checkoutData.url) throw new Error('El simulador de pagos no está disponible.'); window.location.assign(checkoutData.url); }
       form.addEventListener('submit', async event => {
         event.preventDefault(); if (!chosen) return;
         submit.disabled = true; message.textContent = 'Procesando tu solicitud…';
@@ -149,7 +149,7 @@ import '../styles/booking.css';
           const response = await fetch('/api/bookings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...values, sessionId: chosen.id }) });
           const data = await response.json(); if (!response.ok) throw new Error(data.error || 'No se pudo reservar.');
           if (data.checkout) {
-            message.textContent = 'Abriendo el pago seguro de Wompi…';
+            message.textContent = 'Abriendo el simulador de pago…';
             redirectToCheckout(data.checkout); return;
           }
           message.textContent = data.message; form.reset(); chosen = null; selected.textContent = 'Primero elige una clase disponible.'; await loadSessions();
@@ -177,7 +177,7 @@ import '../styles/booking.css';
           data.plans.forEach(plan => { const card = document.createElement('article'); card.className = 'membership-card'; const title = document.createElement('h3'); title.textContent = plan.name; const desc = document.createElement('p'); desc.textContent = plan.description; const details = document.createElement('p'); details.textContent = `${plan.class_credits} clases · ${plan.validity_days} días de vigencia`; const price = document.createElement('strong'); price.textContent = `$${(plan.price_cents / 100).toFixed(2)}`; const button = document.createElement('button'); button.type = 'button'; button.textContent = 'Elegir membresía'; button.addEventListener('click', () => { chosenPlan = plan; document.querySelector('#selected-plan').textContent = `${plan.name} · $${(plan.price_cents / 100).toFixed(2)}`; membershipForm.hidden = false; membershipForm.scrollIntoView({ behavior: 'smooth', block: 'center' }); }); card.append(title, desc, details, price, button); membershipList.append(card); });
         } catch { membershipList.textContent = 'No pudimos cargar las membresías ahora. Inténtalo de nuevo más tarde.'; }
       }
-      membershipForm.addEventListener('submit', async event => { event.preventDefault(); if (!chosenPlan) return; const button = membershipForm.querySelector('button'); button.disabled = true; membershipMessage.textContent = 'Preparando pago seguro…'; try { const response = await fetch('/api/memberships', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...Object.fromEntries(new FormData(membershipForm)), planId: chosenPlan.id }) }); const data = await response.json(); if (!response.ok) throw new Error(data.error); redirectToCheckout(data.checkout); } catch (error) { membershipMessage.textContent = error.message; button.disabled = false; } });
+      membershipForm.addEventListener('submit', async event => { event.preventDefault(); if (!chosenPlan) return; const button = membershipForm.querySelector('button'); button.disabled = true; membershipMessage.textContent = 'Preparando simulación…'; try { const response = await fetch('/api/memberships', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...Object.fromEntries(new FormData(membershipForm)), planId: chosenPlan.id }) }); const data = await response.json(); if (!response.ok) throw new Error(data.error); redirectToCheckout(data.checkout); } catch (error) { membershipMessage.textContent = error.message; button.disabled = false; } });
       const membershipId = new URLSearchParams(location.search).get('membresia');
       async function checkMembership(attempt = 0) { try { const response = await fetch(`/api/membership-status/${membershipId}`, { cache: 'no-store' }); const data = await response.json(); if (data.status === 'active') { membershipForm.hidden = false; membershipMessage.textContent = '¡Pago confirmado! Tu membresía está activa. Revisa tu correo.'; return; } if (data.status === 'payment_failed') { membershipForm.hidden = false; membershipMessage.textContent = 'El pago no se completó. Contacta al estudio.'; return; } membershipForm.hidden = false; membershipMessage.textContent = 'Verificando el pago de tu membresía…'; if (attempt < 12) setTimeout(() => checkMembership(attempt + 1), 5000); else membershipMessage.textContent = 'La confirmación sigue pendiente. Contacta al estudio con tu referencia.'; } catch { membershipMessage.textContent = 'No pudimos verificar el pago. Contacta al estudio.'; } }
       if (membershipId && /^[0-9a-f-]{36}$/.test(membershipId)) checkMembership();

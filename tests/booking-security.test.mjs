@@ -1,50 +1,43 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHash } from 'node:crypto';
-import { wompiCheckout, wompiConfigured } from '../lib/payment.js';
-import { onRequestPost as webhook } from '../functions/api/wompi/webhook.js';
+import { demoCheckout, demoPaymentReference, demoPaymentsEnabled } from '../lib/payment.js';
+import { onRequestPost as settleDemoPayment } from '../functions/api/demo-payment.js';
 
-const env = {
-  DB: {},
-  WOMPI_ENV: 'test',
-  WOMPI_PUBLIC_KEY: 'pub_test_synthetic',
-  WOMPI_INTEGRITY_SECRET: 'test_integrity_synthetic',
-  WOMPI_EVENTS_SECRET: 'test_events_synthetic'
-};
+const demoEnv = { PAYMENT_MODE: 'demo' };
 
-test('sandbox requires sandbox keys, never production keys', () => {
-  assert.equal(wompiConfigured(env), true);
-  assert.equal(wompiConfigured({ ...env, WOMPI_PUBLIC_KEY: 'pub_prod_wrong' }), false);
-  assert.equal(wompiConfigured({ ...env, WOMPI_INTEGRITY_SECRET: 'prod_integrity_wrong' }), false);
-  assert.equal(wompiConfigured({ ...env, WOMPI_ENV: 'prod' }), false);
+test('demo payments require an explicit demo-only mode', () => {
+  assert.equal(demoPaymentsEnabled(demoEnv), true);
+  assert.equal(demoPaymentsEnabled({ PAYMENT_MODE: 'test' }), false);
+  assert.equal(demoPaymentsEnabled({}), false);
 });
 
-test('checkout signs the exact Wompi amount, currency, expiry and reference', async () => {
-  const reference = 'tcs-class-synthetic';
-  const payment = await wompiCheckout({ env, request: new Request('https://example.test/api/bookings'), reference, amountCents: 2500, email: 'qa@example.test', name: 'QA', returnPath: '/reservar/?reserva=synthetic' });
-  const fields = payment.checkout.fields;
-  const expected = createHash('sha256').update(`${reference}2500USD${fields['expiration-time']}${env.WOMPI_INTEGRITY_SECRET}`).digest('hex');
-  assert.equal(fields['signature:integrity'], expected);
-  assert.equal(fields['redirect-url'], 'https://example.test/reservar/?reserva=synthetic');
-  assert.equal(payment.checkout.url, 'https://checkout.wompi.pa/p/');
+test('demo checkout stays on the current origin and never requests card fields', () => {
+  const id = crypto.randomUUID();
+  const token = demoPaymentReference('class');
+  const payment = demoCheckout({ env: demoEnv, request: new Request('https://example.test/api/bookings'), kind: 'booking', id, token });
+  const url = new URL(payment.checkout.url);
+  assert.equal(url.origin, 'https://example.test');
+  assert.equal(url.pathname, '/pago-demo/');
+  assert.equal(url.searchParams.get('id'), id);
+  assert.equal(url.searchParams.get('token'), token);
+  assert.equal(payment.checkout.demo, true);
+  assert.equal('fields' in payment.checkout, false);
 });
 
-function signedEvent(reference, checksumOverride) {
-  const timestamp = 1234567890;
-  const transaction = { id: 'tx-synthetic', status: 'APPROVED', amount_in_cents: 2500, currency: 'USD', reference };
-  const checksum = checksumOverride || createHash('sha256').update(`${transaction.id}${transaction.status}${transaction.amount_in_cents}${timestamp}${env.WOMPI_EVENTS_SECRET}`).digest('hex').toUpperCase();
-  return { event: 'transaction.updated', environment: 'test', data: { transaction }, signature: { properties: ['transaction.id', 'transaction.status', 'transaction.amount_in_cents'], checksum }, timestamp };
-}
-
-test('webhook rejects forged events before database access', async () => {
-  const request = new Request('https://example.test/api/wompi/webhook', { method: 'POST', body: JSON.stringify(signedEvent('tcs-class-synthetic', 'BAD')) });
-  const response = await webhook({ request, env, waitUntil() {} });
-  assert.equal(response.status, 401);
+test('demo references are isolated by purchase type', () => {
+  assert.match(demoPaymentReference('class'), /^demo-class-[0-9a-f-]{36}$/);
+  assert.match(demoPaymentReference('plan'), /^demo-plan-[0-9a-f-]{36}$/);
+  assert.throws(() => demoPaymentReference('order'));
 });
 
-test('signed events for another business do not touch this database', async () => {
-  const request = new Request('https://example.test/api/wompi/webhook', { method: 'POST', body: JSON.stringify(signedEvent('b1-order-123')) });
-  const response = await webhook({ request, env, waitUntil() {} });
-  assert.equal(response.status, 200);
-  assert.deepEqual(await response.json(), { ok: true, ignored: true });
+test('demo settlement rejects cross-origin requests before database access', async () => {
+  const request = new Request('https://example.test/api/demo-payment', { method: 'POST', headers: { Origin: 'https://attacker.test' }, body: '{}' });
+  const response = await settleDemoPayment({ request, env: demoEnv });
+  assert.equal(response.status, 403);
+});
+
+test('demo settlement is unavailable unless the explicit mode is enabled', async () => {
+  const request = new Request('https://example.test/api/demo-payment', { method: 'POST', headers: { Origin: 'https://example.test' }, body: '{}' });
+  const response = await settleDemoPayment({ request, env: { PAYMENT_MODE: 'off' } });
+  assert.equal(response.status, 503);
 });

@@ -60,6 +60,23 @@
 .booking-message { min-height: 22px; font-size: .85rem; font-weight: 700; line-height: 1.45; }
 .booking-empty { padding: 30px; border: 1px solid rgba(37,25,20,.3); color: #624e43; line-height: 1.5; }
 .booking-footer { padding: 24px 0; border-top: 1px solid rgba(37,25,20,.2); color: #624e43; font-size: .8rem; }
+.demo-payment-shell { min-height: 100vh; display: grid; grid-template-rows: auto 1fr auto; }
+.demo-payment-main { display: grid; place-items: center; padding: clamp(50px,9vw,110px) 0; }
+.demo-payment-card { width: min(680px,100%); padding: clamp(28px,6vw,64px); border: 1px solid rgba(37,25,20,.3); background: #e7d8cc; box-shadow: 0 28px 80px rgba(37,25,20,.12); }
+.demo-payment-card h1 { margin: 0; font-family: "ProximaNovaDisplay",Arial,sans-serif; font-size: clamp(2.7rem,7vw,5.5rem); letter-spacing: -.065em; line-height: .9; text-transform: uppercase; }
+.demo-payment-card > p:not(.booking-eyebrow) { max-width: 560px; margin: 24px 0; color: #624e43; line-height: 1.55; }
+.demo-badge { display: inline-block; margin-bottom: 30px; padding: 9px 12px; background: #251914; color: #eee3d9; font-size: .7rem; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+.demo-payment-summary { margin: 30px 0; border-top: 1px solid rgba(37,25,20,.25); }
+.demo-payment-summary div { display: flex; justify-content: space-between; gap: 20px; padding: 15px 0; border-bottom: 1px solid rgba(37,25,20,.25); }
+.demo-payment-summary dt { color: #624e43; font-size: .72rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.demo-payment-summary dd { margin: 0; font-weight: 800; text-align: right; }
+.demo-payment-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.demo-payment-actions button { min-height: 52px; border: 1px solid #251914; padding: 12px; background: #251914; color: #eee3d9; font: inherit; font-size: .75rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; cursor: pointer; }
+.demo-payment-actions .demo-secondary { background: transparent; color: #251914; }
+.demo-payment-actions button:disabled { cursor: not-allowed; opacity: .5; }
+.demo-payment-card .booking-message { margin: 18px 0; }
+.demo-payment-card small { display: block; color: #624e43; line-height: 1.5; }
+.demo-result-link { display: inline-block; margin-top: 12px; border-bottom: 1px solid currentColor; font-weight: 800; text-transform: uppercase; }
 .admin-app .booking-hero { padding-bottom: 36px; }
 .admin-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 32px; }
 .admin-summary article { padding: 24px; background: #523e33; color: #eee3d9; }
@@ -92,5 +109,5 @@
 .admin-toolbar select { max-width: 210px; min-height: 36px; border: 1px solid #9b8172; padding: 6px; background: transparent; color: #251914; }
 [hidden] { display: none !important; }
 @media (max-width: 800px) { .booking-grid, .admin-layout { grid-template-columns: 1fr; } .booking-form { max-width: 620px; } .membership-list { grid-template-columns: 1fr 1fr; } }
-@media (max-width: 520px) { .booking-shell { width: min(100% - 32px, 1180px); } .booking-header { min-height: 80px; } .booking-header img { width: 105px; } .booking-hero { padding: 55px 0 35px; } .booking-hero h1 { font-size: clamp(2.8rem, 13vw, 4.5rem); } .booking-steps ol,.membership-list { grid-template-columns: 1fr; } .booking-steps ol { gap: 18px; } .booking-grid { gap: 32px; padding-bottom: 70px; } .week-controls { width: 100%; justify-content: space-between; } .session-card { grid-template-columns: 55px 1fr; gap: 10px; padding: 14px; } .session-date strong { font-size: 1.5rem; } .session-side { grid-column: 2; display: flex; gap: 10px; text-align: left; } .booking-form { padding: 22px; } .admin-summary { gap: 6px; } .admin-summary article { padding: 13px; } .admin-summary strong { font-size: 1.6rem; } .admin-summary span { font-size: .58rem; } .admin-booking { grid-template-columns: 1fr; } .admin-booking-actions { justify-content: start; } }
+@media (max-width: 520px) { .booking-shell { width: min(100% - 32px, 1180px); } .booking-header { min-height: 80px; } .booking-header img { width: 105px; } .booking-hero { padding: 55px 0 35px; } .booking-hero h1 { font-size: clamp(2.8rem, 13vw, 4.5rem); } .booking-steps ol,.membership-list { grid-template-columns: 1fr; } .booking-steps ol { gap: 18px; } .booking-grid { gap: 32px; padding-bottom: 70px; } .week-controls { width: 100%; justify-content: space-between; } .session-card { grid-template-columns: 55px 1fr; gap: 10px; padding: 14px; } .session-date strong { font-size: 1.5rem; } .session-side { grid-column: 2; display: flex; gap: 10px; text-align: left; } .booking-form { padding: 22px; } .admin-summary { gap: 6px; } .admin-summary article { padding: 13px; } .admin-summary strong { font-size: 1.6rem; } .admin-summary span { font-size: .58rem; } .admin-booking { grid-template-columns: 1fr; } .admin-booking-actions { justify-content: start; } .demo-payment-actions { grid-template-columns: 1fr; } .demo-payment-card { padding: 26px 20px; } }
 @media (prefers-reduced-motion: reduce) { .session-card { transition: none; } .session-card:hover, .session-card:focus-visible { transform: none; } }

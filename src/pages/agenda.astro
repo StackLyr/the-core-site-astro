@@ -21,7 +21,7 @@ import '../styles/booking.css';
         <div class="booking-hero">
           <p class="booking-eyebrow">Panel privado · The Core Site</p>
           <h1>Tu agenda,<br />en orden.</h1>
-          <p>Horarios, cupos y personas en un solo lugar. Los pagos aprobados se confirman mediante Wompi; las solicitudes sin pago se confirman manualmente.</p>
+          <p>Horarios, cupos y personas en un solo lugar. Los pagos de esta versión son simulaciones claramente marcadas y nunca realizan cargos reales.</p>
         </div>
         <section id="admin-login" class="admin-card" style="max-width:440px" aria-labelledby="login-heading">
           <h2 id="login-heading">Acceso del estudio</h2>
@@ -50,7 +50,7 @@ import '../styles/booking.css';
                 <button type="submit">Crear clase</button>
                 <div class="booking-message" id="session-message" role="status"></div>
               </form>
-              <p class="booking-note">Si el precio queda vacío, la reserva entra como solicitud. Un precio mayor que cero requiere Wompi configurado.</p>
+              <p class="booking-note">Si el precio queda vacío, la reserva entra como solicitud. Un precio mayor que cero abre el simulador de pago.</p>
             </section>
             <section class="admin-bookings" aria-labelledby="bookings-heading">
               <div class="admin-toolbar">
@@ -70,14 +70,14 @@ import '../styles/booking.css';
           </div>
           <section class="admin-section" aria-labelledby="calendar-heading"><h2 id="calendar-heading">Calendario de clases</h2><p>Publica una clase semanalmente desde el formulario. Cerrar una clase impide nuevas reservas, pero no cancela las existentes.</p><div id="admin-sessions" class="admin-stack"></div></section>
           <section class="admin-section" aria-labelledby="plans-heading"><h2 id="plans-heading">Membresías</h2><div class="admin-layout">
-            <div class="admin-card"><form id="plan-form" class="admin-form"><label>Nombre del plan<input name="name" maxlength="80" required placeholder="Plan mensual" /></label><label>Descripción<input name="description" maxlength="250" /></label><label>Clases incluidas<input name="classCredits" type="number" min="1" max="100" required /></label><label>Vigencia (días)<input name="validityDays" type="number" min="1" max="365" required /></label><label>Precio total USD<input name="price" type="number" min="0.01" max="10000" step="0.01" required /></label><button type="submit">Publicar plan</button><div class="booking-message" id="plan-message" role="status"></div></form><p class="booking-note">Compra única, sin renovación automática. Necesita Wompi configurado.</p></div>
+            <div class="admin-card"><form id="plan-form" class="admin-form"><label>Nombre del plan<input name="name" maxlength="80" required placeholder="Plan mensual" /></label><label>Descripción<input name="description" maxlength="250" /></label><label>Clases incluidas<input name="classCredits" type="number" min="1" max="100" required /></label><label>Vigencia (días)<input name="validityDays" type="number" min="1" max="365" required /></label><label>Precio total USD<input name="price" type="number" min="0.01" max="10000" step="0.01" required /></label><button type="submit">Publicar plan</button><div class="booking-message" id="plan-message" role="status"></div></form><p class="booking-note">Compra ficticia, sin renovación automática ni cobro real.</p></div>
             <div><h3>Planes publicados</h3><div id="admin-plans" class="admin-stack"></div></div>
           </div><h3>Membresías de clientes</h3><div id="admin-memberships" class="admin-stack"></div></section>
           <section class="admin-section" aria-labelledby="email-heading"><h2 id="email-heading">Correos de confirmación</h2><p>Los correos se envían con Resend cuando esté configurado. Los fallidos se pueden reintentar aquí.</p><div id="admin-emails" class="admin-stack"></div></section>
           <button id="logout-button" class="admin-action" type="button">Cerrar sesión</button>
         </div>
       </main>
-      <footer class="booking-footer">Panel local en desarrollo · No publicar sin configurar autenticación, base de datos y Wompi</footer>
+      <footer class="booking-footer">Demostración local · Pagos ficticios · No procesa tarjetas ni cobros reales</footer>
     </div>
     <script>
       const loginSection = document.querySelector('#admin-login');

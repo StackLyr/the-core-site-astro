@@ -1,5 +1,5 @@
 import { bodyJson, cleanText, isAdmin, json, sameOrigin } from '../../lib/booking.js';
-import { wompiConfigured } from '../../lib/payment.js';
+import { demoPaymentsEnabled } from '../../lib/payment.js';
 
 export async function onRequestGet({ env }) {
   if (!env.DB) return json({ error: 'Base de datos no configurada.' }, 503);
@@ -10,7 +10,7 @@ export async function onRequestGet({ env }) {
 export async function onRequestPost({ request, env }) {
   if (!sameOrigin(request) || !(await isAdmin(request, env))) return json({ error: 'No autorizado.' }, 403);
   if (!env.DB) return json({ error: 'Base de datos no configurada.' }, 503);
-  if (!wompiConfigured(env)) return json({ error: 'Configura Wompi antes de publicar una membresía con precio.' }, 409);
+  if (!demoPaymentsEnabled(env)) return json({ error: 'Activa el modo de pago demo antes de publicar una membresía.' }, 409);
   try {
     const body = await bodyJson(request);
     const name = cleanText(body.name, 80);

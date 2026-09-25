@@ -1,11 +1,11 @@
 import { allowPublicRequest, bodyJson, cleanText, isAdmin, json, sameOrigin, validEmail } from '../../lib/booking.js';
-import { wompiCheckout, wompiConfigured } from '../../lib/payment.js';
+import { demoCheckout, demoPaymentReference, demoPaymentsEnabled } from '../../lib/payment.js';
 import { classDate, queueEmail, sendQueuedEmail } from '../../lib/email.js';
 
 export async function onRequestGet({ request, env }) {
   if (!(await isAdmin(request, env))) return json({ error: 'No autorizado.' }, 401);
   if (!env.DB) return json({ error: 'Base de datos no configurada.' }, 503);
-  const result = await env.DB.prepare(`SELECT b.id, b.status, b.amount_cents, b.created_at, b.cancelled_at, b.wompi_transaction_id,
+  const result = await env.DB.prepare(`SELECT b.id, b.status, b.amount_cents, b.created_at, b.cancelled_at,
       s.class_name, s.starts_at, c.name, c.email, c.phone
       FROM bookings b JOIN sessions s ON s.id = b.session_id JOIN clients c ON c.id = b.client_id
       WHERE s.starts_at >= ? ORDER BY s.starts_at ASC, b.created_at ASC LIMIT 500`)
@@ -28,13 +28,13 @@ export async function onRequestPost({ request, env, waitUntil }) {
     const session = await env.DB.prepare("SELECT * FROM sessions WHERE id = ? AND state = 'open' AND starts_at > ?").bind(sessionId, new Date(Date.now() + 30 * 60000).toISOString()).first();
     if (!session) return json({ error: 'Esa clase ya no está disponible.' }, 404);
     const priced = Number.isInteger(session.price_cents) && session.price_cents > 0;
-    if (priced && !wompiConfigured(env)) return json({ error: 'El pago en línea aún no está configurado. Contacta al estudio.' }, 503);
+    if (priced && !demoPaymentsEnabled(env)) return json({ error: 'El simulador de pagos no está habilitado.' }, 503);
     const clientId = crypto.randomUUID();
     await env.DB.prepare('INSERT INTO clients (id, name, email, phone) VALUES (?, ?, ?, ?) ON CONFLICT(email) DO UPDATE SET name = excluded.name, phone = excluded.phone').bind(clientId, name, email, phone).run();
     const client = await env.DB.prepare('SELECT id FROM clients WHERE email = ?').bind(email).first();
     const bookingId = crypto.randomUUID();
-    const reference = priced ? `tcs-class-${bookingId}` : null;
-    const payment = priced ? await wompiCheckout({ env, request, reference, amountCents: session.price_cents, email, name, returnPath: `/reservar/?reserva=${bookingId}` }) : null;
+    const reference = priced ? demoPaymentReference('class') : null;
+    const payment = priced ? demoCheckout({ env, request, kind: 'booking', id: bookingId, token: reference }) : null;
     const expiresAt = payment?.expiresAt || null;
     const status = priced ? 'pending_payment' : 'requested';
     const now = new Date().toISOString();
